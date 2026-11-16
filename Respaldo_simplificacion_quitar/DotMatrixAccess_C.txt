@@ -1,0 +1,110 @@
+; Codigo pantalla Dot Matrix
+
+PROC_DOTMATRIX PROC
+    CALL DOT_CARGAR
+    CALL Dot_DIBUJA
+    CALL Dot_ACTUALIZA
+Dot_ESPERA:
+    CALL TECLA
+    CMP AL,27
+    JE Dot_SALIR
+    CMP AL,'+'
+    JE Dot_KSUBE
+    CMP AL,'='
+    JE Dot_KSUBE
+    CMP AL,'-'
+    JE Dot_KBAJA
+    JMP Dot_ESPERA
+Dot_KSUBE:
+    CMP Dot_temp,99
+    JGE Dot_ESPERA
+    INC Dot_temp
+    JMP Dot_REFRESCA
+Dot_KBAJA:
+    CMP Dot_temp,0
+    JE Dot_ESPERA
+    DEC Dot_temp
+Dot_REFRESCA:
+    CALL Dot_ACTUALIZA
+    JMP Dot_ESPERA
+Dot_SALIR:
+    RET
+PROC_DOTMATRIX ENDP
+
+; Umbral fijo: alerta cuando la temperatura llega a 28 C
+DOT_CARGAR PROC
+    MOV Dot_umbral,28
+    RET
+DOT_CARGAR ENDP
+
+; Dibujar
+Dot_DIBUJA PROC
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Dot_ln00,79,0,0,0,0,2FH
+    IMPCAP_CONCOLOR Dot_ln02,79,2,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln03,79,3,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln04,79,4,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln05,79,5,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln06,79,6,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln08,79,8,0,0,0,0EH
+    IMPCAP_CONCOLOR Dot_ln10,79,10,0,0,0,0EH
+    IMPCAP_CONCOLOR Dot_ln11,79,11,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln12,79,12,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln13,79,13,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln14,79,14,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln15,79,15,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln16,79,16,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln17,79,17,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln18,79,18,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln19,79,19,0,0,0,0AH
+    IMPCAP_CONCOLOR Dot_ln20,79,20,0,0,0,0AH
+    IMPCAP_CONCOLOR Con_msjTec,56,22,12,0,0,0EH
+    IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
+    RET
+Dot_DIBUJA ENDP
+
+; Muestra valores, decide N o A y manda la letra al dot matrix
+Dot_ACTUALIZA PROC
+    LEA DI,Dot_tTemp
+    MOV AL,Dot_temp
+    CALL UTIL_NUM2              
+    MOV AL,' '
+    MOV [DI],AL
+    MOV AL,'C'
+    MOV [DI+1],AL
+    LEA DI,Dot_tUmb
+    MOV AL,Dot_umbral
+    CALL UTIL_NUM2
+    MOV AL,' '
+    MOV [DI],AL
+    MOV AL,'C'
+    MOV [DI+1],AL
+    IMPCAP_CONCOLOR Dot_tTemp,6,11,57,0,0,0EH
+    IMPCAP_CONCOLOR Dot_tUmb,6,12,57,0,0,0EH
+
+    MOV AL,Dot_temp
+    CMP AL,Dot_umbral
+    JGE Dot_ESALERTA
+    LEA SI,Dot_letraN           ; temp < umbral = NORMAL
+    CALL Dot_ENVIA
+    IMPCAP_CONCOLOR Dot_resN,10,19,60,0,0,0AH
+    RET
+Dot_ESALERTA:
+    LEA SI,Dot_letraA           ; temp >= umbral = ALERTA
+    CALL Dot_ENVIA
+    IMPCAP_CONCOLOR Dot_resA,10,19,60,0,0,0CH
+    RET
+Dot_ACTUALIZA ENDP
+
+; Mandar a los puertos 2000h a 2004h
+Dot_ENVIA PROC
+    MOV DX,2000H
+    MOV CX,5
+Dot_DIBUJAR:
+    MOV AL,[SI]
+    OUT DX,AL
+    INC SI
+    INC DX
+    LOOP Dot_DIBUJAR
+    RET
+Dot_ENVIA ENDP

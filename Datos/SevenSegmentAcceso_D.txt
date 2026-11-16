@@ -1,0 +1,53 @@
+; Datos pantalla Seven Segment (monitoreo con 2 displays de 7 segmentos)
+; Puertos del device: 2030h (decenas) y 2031h (unidades) de la temperatura
+
+    ; --- Diseno: una variable por renglon (el numero es el renglon de la pantalla) ---
+    Sev_ln00    DB ' SCTA  |  DISPOSITIVO: SEVEN SEGMENT  |  MONITOREO                             '
+    Sev_ln02    DB '     |\_   _/|                   ____    ____  _____     _                     '
+    Sev_ln03    DB '    ||  \ /  ||                 / ___|  / ___||_   _|   / \                    '
+    Sev_ln04    DB '    ||   |   ||                 \___ \ | |      | |    / _ \                   '
+    Sev_ln05    DB '    |_\__|__/_|                  ___) || |___   | |   / ___ \                  '
+    Sev_ln06    DB '       \___/                    |____/  \____|  |_|  /_/   \_\                 '
+    Sev_ln08    DB '         ========== CONTROL AMBIENTAL - BIBLIOTECA CENTRAL ==========          '
+    Sev_ln10    DB ' ---- Sensores en tiempo real --------- ---- Estado del sistema -------------- '
+    Sev_ln11    DB ' | Temperatura:  [    ] C             | | Climatizacion:                     | '
+    Sev_ln12    DB ' | Rango ideal:  18 a 27 C            | | Extractor aire:                    | '
+    Sev_ln13    DB ' | Humedad:      [    ] %             | | Deshumidificador:                  | '
+    Sev_ln14    DB ' | Rango ideal:  45 a 55 %            | | Calefaccion:                       | '
+    Sev_ln15    DB ' |                                    | | Alerta temp.:                      | '
+    Sev_ln16    DB ' | Puertos 7seg: 2030h y 2031h        | | Alerta humedad:                    | '
+    Sev_ln17    DB ' |                                    | |                                    | '
+    Sev_ln18    DB ' -------------------------------------- -------------------------------------- '
+
+    ; --- Textos que cambian segun la lectura (ancho fijo = 16) ---
+    Sev_vCliA    DB 'ACTIVO ENFRIANDO'
+    Sev_vInact   DB 'INACTIVO        '
+    Sev_vExtA    DB 'ENCENDIDO       '
+    Sev_vExtN    DB 'APAGADO         '
+    Sev_vDesA    DB 'ACTIVO          '
+    Sev_vOn      DB 'ON              '
+    Sev_vOff     DB 'OFF             '
+    Sev_vTAlta   DB 'ALTA (>=28 C)   '
+    Sev_vTBaja   DB 'BAJA (<18 C)    '
+    Sev_vNorm    DB 'NORMAL          '
+    Sev_vHAlta   DB 'ALTA (>55 %)    '
+    Sev_vHBaja   DB 'BAJA (<45 %)    '
+    Sev_tTemp      DB 2 dup(' ')      ; digitos de temperatura dentro de [ ]
+    Sev_tHum       DB 2 dup(' ')      ; digitos de humedad dentro de [ ]
+    Sev_msjTec     DB 'Pulsa una tecla para volver al menu' ;35
+
+    ; --- Datos del device (a-b-c-d-e-f-g, bit0 = a ... bit6 = g) ---
+    Sev_tabla      DB 00111111B       ; 0
+                   DB 00000110B       ; 1
+                   DB 01011011B       ; 2
+                   DB 01001111B       ; 3
+                   DB 01100110B       ; 4
+                   DB 01101101B       ; 5
+                   DB 01111101B       ; 6
+                   DB 00000111B       ; 7
+                   DB 01111111B       ; 8
+                   DB 01101111B       ; 9
+
+    ; --- Lectura simulada (valores fijos) ---
+    Sev_temp       DB 28
+    Sev_hum        DB 50

@@ -1,0 +1,10 @@
+Temp. Maxima (C): 26
+Humedad Maxima (%): 12
+Ventilacion: 1
+Alerta Goteras: 1
+--------------------
+Temp. Maxima (C): 
+Humedad Maxima (%): 
+Ventilacion: 
+Alerta Goteras: 
+--------------------

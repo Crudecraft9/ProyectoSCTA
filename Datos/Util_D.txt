@@ -1,0 +1,21 @@
+; Datos compartidos (utilerias, encabezado y sesion)
+
+    Util_marco     DB 80 dup(205)
+    Util_hdr1      DB "    |\_       _/|     _____   _____  _______       _     "
+    Util_hdr2      DB "    ||  \   /  ||    / ____| / ____||__   __|     / \    "
+    Util_hdr3      DB "    ||   \ /   ||   | (___  | |        | |       / _ \   "
+    Util_hdr4      DB "    ||    |    ||    \___ \ | |        | |      / ___ \  "
+    Util_hdr5      DB "    |_\___|___/_|    ____) || |____    | |     / /   \ \ "
+    Util_hdr6      DB "        \___/       |_____/  \_____|   |_|    /_/     \_\"
+
+    Util_buf       DB 8001 dup(0)   ; buffer de carga de archivos (8000 + centinela 0)
+    Util_fila      DB 0
+    Util_col0      DB 0
+    Util_attr      DB 17H
+    Util_max       DB 0
+    Util_len       DB 0
+    Util_mascara   DB 0   ; 1 = mostrar * al capturar
+
+    ; Datos del operador que inicio sesion
+    Ses_zona       DB '1'
+    Ses_rol        DB '2'

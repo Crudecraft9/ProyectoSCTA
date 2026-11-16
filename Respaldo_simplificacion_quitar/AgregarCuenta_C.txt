@@ -1,0 +1,430 @@
+; Codigo pantalla Agregar cuenta
+
+PROC_AGREGARCUENTA PROC
+Agr_INICIO:
+    CALL Agr_DIBUJA
+    CALL Agr_CAPTURA           
+    CMP AL,1
+    JNE Agr_VAL
+    JMP Agr_CANCELA
+Agr_VAL:
+    CALL Agr_VALIDA             
+    CMP AL,0
+    JE Agr_GUARDAR
+    CMP AL,1
+    JE Agr_E1
+    CMP AL,2
+    JE Agr_E2
+    IMPCAP_CONCOLOR Agr_msjOpc,79,21,0,0,0,0CH
+    JMP Agr_EFIN
+Agr_E1:
+    IMPCAP_CONCOLOR Agr_msjVacio,79,21,0,0,0,0CH
+    JMP Agr_EFIN
+Agr_E2:
+    IMPCAP_CONCOLOR Agr_msjClave,79,21,0,0,0,0CH
+Agr_EFIN:
+    CALL TECLA
+    JMP Agr_INICIO              
+
+Agr_GUARDAR:
+    CALL Agr_GUARDA             
+    CMP AL,0
+    JNE Agr_ERRARCH
+    CALL Agr_REG_OPER
+    IMPCAP_CONCOLOR Agr_msjOk,79,21,0,0,0,0AH
+    CALL TECLA
+    JMP Agr_CANCELA
+Agr_ERRARCH:
+    IMPCAP_CONCOLOR Agr_msjErr,79,21,0,0,0,0CH
+    CALL TECLA
+Agr_CANCELA:
+    RET
+PROC_AGREGARCUENTA ENDP
+
+; Dibuja el diseno fijo de la pantalla
+Agr_DIBUJA PROC
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Agr_ln00,79,0,0,0,0,2FH
+    IMPCAP_CONCOLOR Agr_ln02,79,2,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln03,79,3,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln04,79,4,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln05,79,5,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln06,79,6,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln07,79,7,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln09,79,9,0,0,0,0EH
+    IMPCAP_CONCOLOR Agr_ln11,79,11,0,0,0,0EH
+    IMPCAP_CONCOLOR Agr_ln12,79,12,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln13,79,13,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln14,79,14,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln15,79,15,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln16,79,16,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln17,79,17,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln18,79,18,0,0,0,0BH
+    IMPCAP_CONCOLOR Agr_ln19,79,19,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln21,79,21,0,0,0,0EH
+    IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
+    RET
+Agr_DIBUJA ENDP
+
+Agr_CAPTURA PROC
+    ; --- 0. Nombre ---
+    MOV DH,12
+    MOV DL,11
+    MOV CL,26
+    LEA DI,Agr_buf
+    MOV SI,0
+    CALL Agr_LEE
+    CMP AL,0
+    JNE Agr_C1
+    MOV AL,1
+    RET
+Agr_C1:
+    ; --- 1. Apellidos ---
+    MOV DH,13
+    MOV DL,14
+    MOV CL,23
+    LEA DI,Agr_buf
+    ADD DI,32
+    MOV SI,1
+    CALL Agr_LEE
+    ; --- 2. ID ---
+    MOV DH,14
+    MOV DL,7
+    MOV CL,30
+    LEA DI,Agr_buf
+    ADD DI,64
+    MOV SI,2
+    CALL Agr_LEE
+    ; --- 3. Correo ---
+    MOV DH,15
+    MOV DL,11
+    MOV CL,26
+    LEA DI,Agr_buf
+    ADD DI,96
+    MOV SI,3
+    CALL Agr_LEE
+    ; --- 4. Telefono ---
+    MOV DH,16
+    MOV DL,13
+    MOV CL,24
+    LEA DI,Agr_buf
+    ADD DI,128
+    MOV SI,4
+    CALL Agr_LEE
+    ; --- 5. Turno ---
+    MOV DH,17
+    MOV DL,29
+    MOV CL,1
+    LEA DI,Agr_buf
+    ADD DI,160
+    MOV SI,5
+    CALL Agr_LEE
+    ; --- 6. Usuario ---
+    MOV DH,12
+    MOV DL,51
+    MOV CL,25
+    LEA DI,Agr_buf
+    ADD DI,192
+    MOV SI,6
+    CALL Agr_LEE
+    ; --- 7. Contrasena ---
+    MOV DH,13
+    MOV DL,54
+    MOV CL,22
+    LEA DI,Agr_buf
+    ADD DI,224
+    MOV SI,7
+    CALL Agr_LEE
+    ; --- 8. Confirmar contrasena ---
+    MOV DH,14
+    MOV DL,64
+    MOV CL,12
+    LEA DI,Agr_buf
+    ADD DI,256
+    MOV SI,8
+    CALL Agr_LEE
+    ; --- 9. Rol ---
+    MOV DH,15
+    MOV DL,67
+    MOV CL,1
+    LEA DI,Agr_buf
+    ADD DI,288
+    MOV SI,9
+    CALL Agr_LEE
+    ; --- 10. Estado ---
+    MOV DH,16
+    MOV DL,69
+    MOV CL,1
+    LEA DI,Agr_buf
+    ADD DI,320
+    MOV SI,10
+    CALL Agr_LEE
+    ; --- 11. Zona ---
+    MOV DH,17
+    MOV DL,68
+    MOV CL,1
+    LEA DI,Agr_buf
+    ADD DI,352
+    MOV SI,11
+    CALL Agr_LEE
+    MOV AL,0
+    RET
+Agr_CAPTURA ENDP
+
+Agr_LEE PROC
+    INC CL                      
+    MOV Agr_cad,CL
+    MOV AH,2                    
+    MOV BH,0
+    INT 10H
+    LECTURA_CADENA Agr_cad
+    MOV AL,Agr_cad[1]           
+    MOV Agr_len[SI],AL
+    MOV CL,AL
+    MOV CH,0
+    CMP CX,0
+    JE Agr_LEEFIN
+    LEA BX,Agr_cad
+    ADD BX,2                   
+Agr_COPIA:
+    MOV AL,[BX]
+    MOV [DI],AL
+    INC BX
+    INC DI
+    LOOP Agr_COPIA
+Agr_LEEFIN:
+    MOV AL,Agr_len[SI]
+    RET
+Agr_LEE ENDP
+
+; Validar los 12 campos
+Agr_VALIDA PROC
+    MOV SI,0                    ; 1. ningun campo vacio
+    MOV CX,12
+Agr_V1:
+    CMP Agr_len[SI],0
+    JNE Agr_V1B
+    JMP Agr_VVACIO
+Agr_V1B:
+    INC SI
+    LOOP Agr_V1
+
+    MOV AL,Agr_len[7]           ; 2. contrasena ( = confirmacion 
+    CMP AL,Agr_len[8]
+    JE Agr_V2
+    JMP Agr_VCLAVE
+Agr_V2:
+    MOV CL,AL
+    MOV CH,0
+    LEA SI,Agr_buf
+    ADD SI,224                  
+    LEA DI,Agr_buf
+    ADD DI,256                  
+    REPE CMPSB
+    JNE Agr_VCLAVE
+
+    MOV AL,Agr_buf[160]         ; 3. turno (campo 5) = 1 o 2
+    CMP AL,'1'
+    JE Agr_O1
+    CMP AL,'2'
+    JNE Agr_VOPC
+Agr_O1:
+    MOV AL,Agr_buf[288]         ; rol 
+    CMP AL,'1'
+    JE Agr_O2
+    CMP AL,'2'
+    JNE Agr_VOPC
+Agr_O2:
+    MOV AL,Agr_buf[320]         ; estado 
+    CMP AL,'1'
+    JE Agr_O3
+    CMP AL,'2'
+    JNE Agr_VOPC
+Agr_O3:
+    MOV AL,Agr_buf[352]         ; zona 
+    CMP AL,'1'
+    JE Agr_O4
+    CMP AL,'2'
+    JNE Agr_VOPC
+Agr_O4:
+    MOV AL,0
+    RET
+Agr_VVACIO:
+    MOV AL,1
+    RET
+Agr_VCLAVE:
+    MOV AL,2
+    RET
+Agr_VOPC:
+    MOV AL,3
+    RET
+Agr_VALIDA ENDP
+
+; Guardar la cuenta en cuentas.txt
+Agr_GUARDA PROC
+    LEA DX,Agr_ruta
+    CALL UTIL_ABRIR_ANEXAR      
+    JNC Agr_G1
+    MOV AL,1
+    RET
+Agr_G1:
+    MOV Agr_id,AX
+    ; --- 0. Nombre ---
+    LEA DX,Agr_etq
+    MOV CX,8
+    LEA DI,Agr_buf
+    MOV SI,0
+    CALL Agr_ESC
+    ; --- 1. Apellidos ---
+    LEA DX,Agr_etq
+    ADD DX,16
+    MOV CX,11
+    LEA DI,Agr_buf
+    ADD DI,32
+    MOV SI,1
+    CALL Agr_ESC
+    ; --- 2. ID ---
+    LEA DX,Agr_etq
+    ADD DX,32
+    MOV CX,4
+    LEA DI,Agr_buf
+    ADD DI,64
+    MOV SI,2
+    CALL Agr_ESC
+    ; --- 3. Correo ---
+    LEA DX,Agr_etq
+    ADD DX,48
+    MOV CX,8
+    LEA DI,Agr_buf
+    ADD DI,96
+    MOV SI,3
+    CALL Agr_ESC
+    ; --- 4. Telefono ---
+    LEA DX,Agr_etq
+    ADD DX,64
+    MOV CX,10
+    LEA DI,Agr_buf
+    ADD DI,128
+    MOV SI,4
+    CALL Agr_ESC
+    ; --- 5. Turno ---
+    LEA DX,Agr_etq
+    ADD DX,80
+    MOV CX,7
+    LEA DI,Agr_buf
+    ADD DI,160
+    MOV SI,5
+    CALL Agr_ESC
+    ; --- 6. Usuario ---
+    LEA DX,Agr_etq
+    ADD DX,96
+    MOV CX,9
+    LEA DI,Agr_buf
+    ADD DI,192
+    MOV SI,6
+    CALL Agr_ESC
+    ; --- 7. Contrasena ---
+    LEA DX,Agr_etq
+    ADD DX,112
+    MOV CX,12
+    LEA DI,Agr_buf
+    ADD DI,224
+    MOV SI,7
+    CALL Agr_ESC
+    ; --- 9. Rol ---
+    LEA DX,Agr_etq
+    ADD DX,144
+    MOV CX,5
+    LEA DI,Agr_buf
+    ADD DI,288
+    MOV SI,9
+    CALL Agr_ESC
+    ; --- 10. Estado ---
+    LEA DX,Agr_etq
+    ADD DX,160
+    MOV CX,8
+    LEA DI,Agr_buf
+    ADD DI,320
+    MOV SI,10
+    CALL Agr_ESC
+    ; --- 11. Zona ---
+    LEA DX,Agr_etq
+    ADD DX,176
+    MOV CX,6
+    LEA DI,Agr_buf
+    ADD DI,352
+    MOV SI,11
+    CALL Agr_ESC
+    ESCRIBIR_ARCHIVO Agr_id,22,FDat_sepa
+    CERRAR_ARCHIVO Agr_id
+    MOV AL,0
+    RET
+Agr_GUARDA ENDP
+
+; Escribe etiqueta + valor + salto de linea
+Agr_ESC PROC
+    MOV BX,Agr_id
+    MOV AH,40H
+    INT 21H                     
+    MOV DX,DI
+    CALL Agr_ESC_VAL            
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    RET
+Agr_ESC ENDP
+
+; Escribe lo capturado
+Agr_ESC_VAL PROC
+    MOV CL,Agr_len[SI]
+    MOV CH,0
+    MOV BX,Agr_id
+    MOV AH,40H
+    INT 21H
+    RET
+Agr_ESC_VAL ENDP
+
+; Cuenta Activa
+Agr_REG_OPER PROC
+    CMP Agr_buf[320],'1'       
+    JE Agr_RO1
+    RET
+Agr_RO1:
+    LEA DX,FDat_rutaOper
+    CALL UTIL_ABRIR_ANEXAR
+    JNC Agr_RO2
+    RET
+Agr_RO2:
+    MOV Agr_id,AX
+    ESCRIBIR_ARCHIVO Agr_id,8,FDat_etNom
+    LEA DX,Agr_buf
+    ADD DX,192
+    MOV SI,6                    ; usuario
+    CALL Agr_ESC_VAL
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,13,FDat_etCtl
+    LEA DX,Agr_buf
+    ADD DX,224
+    MOV SI,7                    ; contrasena
+    CALL Agr_ESC_VAL
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,6,FDat_etZon
+    LEA DX,Agr_buf
+    ADD DX,352
+    MOV SI,11                    ; zona
+    CALL Agr_ESC_VAL
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,7,FDat_etTur
+    LEA DX,Agr_buf
+    ADD DX,160
+    MOV SI,5                    ; turno
+    CALL Agr_ESC_VAL
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,5,FDat_etRol
+    LEA DX,Agr_buf
+    ADD DX,288
+    MOV SI,9                    ; rol
+    CALL Agr_ESC_VAL
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,22,FDat_sepa
+    CERRAR_ARCHIVO Agr_id
+    RET
+Agr_REG_OPER ENDP

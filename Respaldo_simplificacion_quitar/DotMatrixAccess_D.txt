@@ -1,0 +1,45 @@
+; Datos pantalla Dot Matrix (alerta visual N / A en matriz de puntos)
+; Puertos del device: 2000h a 2004h (una columna por puerto)
+
+    ; --- Diseno: una variable por renglon (el numero es el renglon de la pantalla) ---
+    Dot_ln00    DB ' SCTA  |  DISPOSITIVO: DOT MATRIX  |  ALERTAS VISUALES                         '
+    Dot_ln02    DB '     |\_   _/|                   ____    ____  _____     _                     '
+    Dot_ln03    DB '    ||  \ /  ||                 / ___|  / ___||_   _|   / \                    '
+    Dot_ln04    DB '    ||   |   ||                 \___ \ | |      | |    / _ \                   '
+    Dot_ln05    DB '    |_\__|__/_|                  ___) || |___   | |   / ___ \                  '
+    Dot_ln06    DB '       \___/                    |____/  \____|  |_|  /_/   \_\                 '
+    Dot_ln08    DB '                ========== ESTADO VISUAL DEL SISTEMA ==========                '
+    Dot_ln10    DB ' ---- Simbolos del dot matrix --------- ---- Regla de decision --------------- '
+    Dot_ln11    DB ' |   N = NORMAL        A = ALERTA     | | Temperatura :                      | '
+    Dot_ln12    DB ' |   @@ .. .. .. @@    .. @@ @@ @@ .. | | Umbral      :                      | '
+    Dot_ln13    DB ' |   @@ @@ .. .. @@    @@ .. .. .. @@ | |                                    | '
+    Dot_ln14    DB ' |   @@ @@ .. .. @@    @@ .. .. .. @@ | | Si temp >= umbral:                 | '
+    Dot_ln15    DB ' |   @@ .. @@ .. @@    @@ .. .. .. @@ | |    se muestra  A  (ALERTA)         | '
+    Dot_ln16    DB ' |   @@ .. .. @@ @@    @@ @@ @@ @@ @@ | | Si temp <  umbral:                 | '
+    Dot_ln17    DB ' |   @@ .. .. @@ @@    @@ .. .. .. @@ | |    se muestra  N  (NORMAL)         | '
+    Dot_ln18    DB ' |   @@ .. .. .. @@    @@ .. .. .. @@ | | Puertos del device: 2000h a 2004h  | '
+    Dot_ln19    DB ' |                                    | | Resultado ahora:                   | '
+    Dot_ln20    DB ' -------------------------------------- -------------------------------------- '
+
+    ; --- Textos que cambian segun la lectura ---
+    Dot_tTemp      DB 6 dup(' ')
+    Dot_tUmb       DB 6 dup(' ')
+    Dot_resN       DB 'N  NORMAL '
+    Dot_resA       DB 'A  ALERTA '
+
+    ; --- Datos del device (columnas de la letra, bit0 = renglon superior) ---
+    Dot_letraN     DB 01111111B
+                   DB 00000110B
+                   DB 00001000B
+                   DB 00110000B
+                   DB 01111111B
+
+    Dot_letraA     DB 01111110B
+                   DB 00010001B
+                   DB 00010001B
+                   DB 00010001B
+                   DB 01111110B
+
+    ; --- Lectura simulada (+ / - la modifican) ---
+    Dot_temp       DB 28
+    Dot_umbral     DB 28            ; umbral fijo

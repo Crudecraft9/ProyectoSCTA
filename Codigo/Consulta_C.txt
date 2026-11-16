@@ -1,0 +1,237 @@
+; Codigo pantalla Consulta Termica (LCD en puertos 2040h-206Fh)
+
+PROC_CONSULTA PROC
+    CALL CON_CARGAR
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Util_marco,80,0,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr1,57,1,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr2,57,2,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr3,57,3,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr4,57,4,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr5,57,5,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr6,57,6,0,0,0,0AH
+    IMPCAP_CONCOLOR Con_titulo,50,8,15,0,0,0EH
+    IMPCAP_CONCOLOR Con_bTopI,36,10,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_fTemp,36,11,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_bVac,36,12,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_fUmb,36,13,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_bVac,36,14,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_fZona,36,15,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_bVac,36,16,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_fFecha,36,17,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_bBot,36,18,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_bTopD,36,10,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_fEst,36,11,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_bVac,36,12,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_fVen,36,13,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_bVac,36,14,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_fReg,36,15,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_bVac,36,16,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_fLcd,36,17,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_bBot,36,18,41,0,0,0AH
+    IMPCAP_CONCOLOR Con_tLcd,13,17,57,0,0,0EH
+    IMPCAP_CONCOLOR Con_msjTec,56,21,3,0,0,0EH
+    IMPCAP_CONCOLOR Util_marco,80,23,0,0,0,0AH
+    IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
+    CALL CON_ACTUALIZA
+Con_ESPERA:
+    CALL TECLA
+    CMP AL,27
+    JE Con_SALIR
+    CMP AL,'+'
+    JE Con_SUBE
+    CMP AL,'='
+    JE Con_SUBE
+    CMP AL,'-'
+    JE Con_BAJA
+    JMP Con_ESPERA
+Con_SUBE:
+    CMP Con_temp,120
+    JAE Con_ESPERA
+    INC Con_temp
+    CALL CON_ACTUALIZA
+    JMP Con_ESPERA
+Con_BAJA:
+    CMP Con_temp,0
+    JE Con_ESPERA
+    DEC Con_temp
+    CALL CON_ACTUALIZA
+    JMP Con_ESPERA
+Con_SALIR:
+    RET
+PROC_CONSULTA ENDP
+
+; Lee umbral y modo de ventilacion de configuracion.txt, zona de la sesion y fecha del sistema
+CON_CARGAR PROC
+    CLD
+    MOV Con_umbral,28
+    MOV Con_ventMod,'1'
+    ; fecha dd/mm/aaaa
+    MOV AH,2AH
+    INT 21H                     ; CX=año DH=mes DL=dia
+    LEA DI,Con_tFecha
+    MOV AL,DL
+    CALL UTIL_NUM2
+    MOV BYTE PTR [DI],'/'
+    INC DI
+    MOV AL,DH
+    CALL UTIL_NUM2
+    MOV BYTE PTR [DI],'/'
+    INC DI
+    MOV AX,CX
+    MOV BL,100
+    DIV BL                      ; AL=20  AH=26
+    PUSH AX
+    CALL UTIL_NUM2
+    POP AX
+    MOV AL,AH
+    CALL UTIL_NUM2
+    ; zona (del operador que inicio sesion)
+    LEA DI,Con_tZona
+    LEA SI,Con_zLud
+    CMP Ses_zona,'2'
+    JNE CON_CZ
+    LEA SI,Con_zGen
+CON_CZ:
+    MOV CX,8
+    REP MOVSB
+    ; configuracion
+    LEA DX,FDat_rutaConf
+    CALL UTIL_CARGAR
+    JC CON_CFIN
+    LEA SI,Util_buf
+    LEA DI,FDat_etTmp
+    MOV CX,18
+    CALL UTIL_ULTIMO
+    JC CON_CV
+    CALL UTIL_PARSE
+    JC CON_CV
+    MOV Con_umbral,AL
+CON_CV:
+    LEA SI,Util_buf
+    LEA DI,FDat_etVen
+    MOV CX,13
+    CALL UTIL_ULTIMO
+    JC CON_CFIN
+    MOV AL,[SI]
+    MOV Con_ventMod,AL
+CON_CFIN:
+    RET
+CON_CARGAR ENDP
+
+; Arma los textos, decide estado, actualiza pantalla y LCD
+CON_ACTUALIZA PROC
+    CLD
+    LEA DI,Con_tTemp
+    MOV CX,6
+    CALL UTIL_ESPACIOS
+    MOV AL,Con_temp
+    CALL UTIL_NUM
+    MOV BYTE PTR [DI],' '
+    MOV BYTE PTR [DI+1],'C'
+    LEA DI,Con_tUmb
+    MOV CX,6
+    CALL UTIL_ESPACIOS
+    MOV AL,Con_umbral
+    CALL UTIL_NUM
+    MOV BYTE PTR [DI],' '
+    MOV BYTE PTR [DI+1],'C'
+    LEA DI,Con_tReg
+    MOV CX,17
+    CALL UTIL_ESPACIOS
+    MOV BYTE PTR [DI],'>'
+    MOV BYTE PTR [DI+1],'='
+    MOV BYTE PTR [DI+2],' '
+    ADD DI,3
+    MOV AL,Con_umbral
+    CALL UTIL_NUM
+    LEA SI,Con_sufReg
+    MOV CX,11
+    REP MOVSB
+    IMPCAP_CONCOLOR Con_tTemp,6,11,19,0,0,0EH
+    IMPCAP_CONCOLOR Con_tUmb,6,13,19,0,0,0EH
+    IMPCAP_CONCOLOR Con_tZona,8,15,19,0,0,0EH
+    IMPCAP_CONCOLOR Con_tFecha,10,17,19,0,0,0EH
+    IMPCAP_CONCOLOR Con_tReg,17,15,57,0,0,0EH
+    ; regla de decision: temperatura >= umbral -> alerta
+    MOV Con_alerta,0
+    MOV AL,Con_temp
+    CMP AL,Con_umbral
+    JB CON_AL1
+    MOV Con_alerta,1
+CON_AL1:
+    MOV AL,Con_alerta
+    MOV Con_vent,AL
+    CMP Con_ventMod,'2'
+    JNE CON_AL2
+    MOV Con_vent,1              ; ventilacion forzada en modo On
+CON_AL2:
+    CALL CON_ENVIA_LCD
+    CMP Con_alerta,1
+    JNE CON_ESN
+    JMP CON_ESA
+CON_ESN:
+    IMPCAP_CONCOLOR Con_bNormal,14,11,57,0,0,2FH
+    JMP CON_VEN
+CON_ESA:
+    IMPCAP_CONCOLOR Con_bAlerta,14,11,57,0,0,4FH
+CON_VEN:
+    CMP Con_vent,1
+    JNE CON_VN
+    JMP CON_VA
+CON_VN:
+    IMPCAP_CONCOLOR Con_venOff,7,13,57,0,0,0AH
+    JMP CON_AVI
+CON_VA:
+    IMPCAP_CONCOLOR Con_venOn,7,13,57,0,0,0CH
+CON_AVI:
+    CMP Con_alerta,1
+    JNE CON_SINAV
+    JMP CON_CONAV
+CON_SINAV:
+    IMPCAP_CONCOLOR Con_avN,52,20,3,0,0,0AH
+    JMP CON_FIN
+CON_CONAV:
+    IMPCAP_CONCOLOR Con_avA,52,20,3,0,0,0CH
+CON_FIN:
+    RET
+CON_ACTUALIZA ENDP
+
+; Envia 2 lineas de 16 caracteres al LCD de emu8086 (puertos 2040h-205Fh)
+CON_ENVIA_LCD PROC
+    CLD
+    LEA DI,Con_lcd
+    CMP Con_alerta,1
+    JE CON_LA
+    LEA SI,Con_lcdN
+    JMP CON_LB
+CON_LA:
+    LEA SI,Con_lcdA
+CON_LB:
+    MOV CX,16
+    REP MOVSB                   ; linea 1: estado
+    MOV CX,16
+    CALL UTIL_ESPACIOS          
+    MOV BYTE PTR [DI],'T'
+    MOV BYTE PTR [DI+1],'='
+    ADD DI,2
+    MOV AL,Con_temp
+    CALL UTIL_NUM
+    LEA SI,Con_lcdU
+    MOV CX,5
+    REP MOVSB
+    MOV AL,Con_umbral
+    CALL UTIL_NUM
+    MOV BYTE PTR [DI],' '
+    MOV BYTE PTR [DI+1],'C'
+    LEA SI,Con_lcd
+    MOV CX,32
+    MOV DX,2040H
+CON_LS:
+    MOV AL,[SI]
+    OUT DX,AL
+    INC SI
+    INC DX
+    LOOP CON_LS
+    RET
+CON_ENVIA_LCD ENDP

@@ -1,0 +1,45 @@
+; Datos pantalla Login
+
+    Log_lg1        DB "MMMMMMMMMMMMMMMMMMMMMWKKNMMMMMMMMMMMMMMM"
+    Log_lg2        DB "MMMMMMMMMMMMMMMMMMMMMNl':kNMMMMMMMMMMMMM"
+    Log_lg3        DB "MMMMMMMMMMMMMMMMMWXOkl;:,.dWMMMMMMMMMMMM"
+    Log_lg4        DB "MMMMMMMMMMMMMMMMKl,'';dx,.lNMMMMMMMMMMMM"
+    Log_lg5        DB "MMMMMMMMMMMMMMMNl.lxdo:''c0MMMMMMMMMMMMM"
+    Log_lg6        DB "MMMMMMMOcldOXWMWocOc.,okKWWXOdlc0MMMMMMM"
+    Log_lg7        DB "MMMWXO0d.;lc::lkK0d:;dXNkl:::l;.d0kKWMMM"
+    Log_lg8        DB "MMMO,;kd.oWWXOdk0c,::,c0kdOXWWd.dk;,OMMM"
+    Log_lg9        DB "MMMd.dWd.dWMMMMM0,c00:,KMMMMMWo.dMd.oWMM"
+    Log_lg10       DB "MMWd.dWd.oWMMMMM0,c00:,KMMMMMWo.dMd.oWMM"
+    Log_lg11       DB "MMWd.dWd.oWMMMMM0,c00:,KMMMMMWo.dMd.oWMM"
+    Log_lg12       DB "MMWd.dWd.oWMMMMWx'lKKc'xWMMMMWo.dMd.oWMM"
+    Log_lg13       DB "MMWd.dWd.lXWMMWx,colloc,xWMMWXl.dMd.oWMM"
+    Log_lg14       DB "MMWd.dW0c::clxKo,dc.'cd,oKxlc::l0Md.oWMM"
+    Log_lg15       DB "MMWd.cO0Okdl;.:xl:cccc:lx;.,cdkO0Oc.oWMM"
+    Log_lg16       DB "MMMKoccccccccc;;lolccclc,;cccccccccoKMMM"
+    Log_lg17       DB "MMMMMMMMWWMWWWNOolllllloONWWWMMMMMMMMMMM"
+    Log_lg18       DB "MMMMMMMMMMMMMMMMMMWWWWMMMMMMMMMMMMMMMMMM"
+    Log_t1         DB "  _____   _____  _______       _     "
+    Log_t2         DB " / ____| / ____||__   __|     / \    "
+    Log_t3         DB "| (___  | |        | |       / _ \   "
+    Log_t4         DB " \___ \ | |        | |      / ___ \  "
+    Log_t5         DB " ____) || |____    | |     / /   \ \ "
+    Log_t6         DB "|_____/  \_____|   |_|    /_/     \_\"
+    Log_subtit     DB "SISTEMA DE CONTROL TERMICO AUTOMATIZADO"
+    Log_version    DB "V1.0"
+
+    Log_enc        DB "          INICIO DE SESION          "
+    Log_usuario    DB "  USUARIO","                           "
+    Log_campoU     DB 30 dup(' ')
+    Log_clave      DB "  CONTRASE",165,"A","                        "
+    Log_campoC     DB 30 dup(' ')
+    Log_boton      DB "            [ INGRESAR ]            "
+    Log_msjF2      DB "   [F2] CREAR NUEVO USUARIO","         "
+    Log_msjEsc     DB "   [ESC] SALIR","                      "
+    Log_msjErr     DB " Usuario o clave incorrectos.","       "
+    Log_msjNoU     DB " No hay usuarios. Usa F2 para crear"," "
+
+    Log_bufUsr     DB 31 dup(0)
+    Log_bufPas     DB 31 dup(0)
+    Log_lenUsr     DB 0
+    Log_lenPas     DB 0
+    Log_err        DB 0

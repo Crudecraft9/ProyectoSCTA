@@ -1,0 +1,371 @@
+; Utilerias compartidas 
+
+
+; Captura una cadena con INT 16h (permite Esc, F2 y mascara de clave)
+UTIL_LEER_CAMPO PROC
+    MOV Util_fila,DH
+    MOV Util_col0,DL
+    MOV Util_attr,BL
+    MOV Util_max,CL
+    MOV Util_len,0
+UL_LOOP:
+    MOV AH,02H
+    MOV BH,0
+    MOV DH,Util_fila
+    MOV DL,Util_col0
+    ADD DL,Util_len
+    INT 10H
+    MOV AH,0
+    INT 16H
+    CMP AL,13
+    JE UL_ENTER
+    CMP AL,27
+    JE UL_ESC
+    CMP AL,8
+    JE UL_BORRA
+    CMP AL,0
+    JNE UL_CHAR
+    CMP AH,3CH
+    JE UL_F2
+    JMP UL_LOOP
+UL_CHAR:
+    CMP AL,0E0H
+    JE UL_LOOP
+    CMP AL,32
+    JB UL_LOOP
+    MOV CL,Util_len
+    CMP CL,Util_max
+    JAE UL_LOOP
+    XOR BH,BH
+    MOV BL,Util_len
+    MOV [DI+BX],AL
+    CMP Util_mascara,1
+    JNE UL_PINTA
+    MOV AL,'*'
+UL_PINTA:
+    MOV AH,09H
+    MOV BH,0
+    MOV BL,Util_attr
+    MOV CX,1
+    INT 10H
+    INC Util_len
+    JMP UL_LOOP
+UL_BORRA:
+    CMP Util_len,0
+    JE UL_LOOP
+    DEC Util_len
+    MOV AH,02H
+    MOV BH,0
+    MOV DH,Util_fila
+    MOV DL,Util_col0
+    ADD DL,Util_len
+    INT 10H
+    MOV AL,' '
+    MOV AH,09H
+    MOV BH,0
+    MOV BL,Util_attr
+    MOV CX,1
+    INT 10H
+    JMP UL_LOOP
+UL_ENTER:
+    MOV AL,0
+    JMP UL_FIN
+UL_ESC:
+    MOV AL,1
+    JMP UL_FIN
+UL_F2:
+    MOV AL,2
+UL_FIN:
+    XOR BH,BH
+    MOV BL,Util_len
+    MOV BYTE PTR [DI+BX],0
+    RET
+UTIL_LEER_CAMPO ENDP
+
+; AL a minuscula si es A-Z
+UTIL_MINUS PROC
+    CMP AL,'A'
+    JB UM_FIN
+    CMP AL,'Z'
+    JA UM_FIN
+    ADD AL,20H
+UM_FIN:
+    RET
+UTIL_MINUS ENDP
+
+
+; Compara cadena capturada (DI, CX caracteres) con el texto en SI.
+; Sin distinguir mayusculas. 
+UTIL_COMPARA PROC
+    PUSH SI
+    PUSH DI
+    PUSH CX
+    CMP CX,0
+    JE UC_NO
+UC_CIC:
+    MOV AL,[SI]
+    CALL UTIL_MINUS
+    MOV AH,AL
+    MOV AL,[DI]
+    CALL UTIL_MINUS
+    CMP AL,AH
+    JNE UC_NO
+    INC SI
+    INC DI
+    LOOP UC_CIC
+UC_ESP:
+    CMP BYTE PTR [SI],' '
+    JNE UC_CHK
+    INC SI
+    JMP UC_ESP
+UC_CHK:
+    MOV AL,[SI]
+    CMP AL,13
+    JE UC_SI
+    CMP AL,10
+    JE UC_SI
+    CMP AL,0
+    JE UC_SI
+UC_NO:
+    POP CX
+    POP DI
+    POP SI
+    STC
+    RET
+UC_SI:
+    POP CX
+    POP DI
+    POP SI
+    CLC
+    RET
+UTIL_COMPARA ENDP
+
+
+
+UTIL_BUSCAR PROC
+    PUSH BX
+    PUSH DX
+    MOV BX,CX
+UB_SIG:
+    CMP BYTE PTR [SI],0
+    JE UB_NO
+    PUSH SI
+    PUSH DI
+    MOV CX,BX
+UB_CMP:
+    MOV AL,[SI]
+    CMP AL,[DI]
+    JNE UB_DIF
+    INC SI
+    INC DI
+    LOOP UB_CMP
+    POP DI
+    POP AX
+    POP DX
+    POP BX
+    CLC
+    RET
+UB_DIF:
+    POP DI
+    POP SI
+    INC SI
+    JMP UB_SIG
+UB_NO:
+    POP DX
+    POP BX
+    STC
+    RET
+UTIL_BUSCAR ENDP
+
+; Igual que UTIL_BUSCAR pero deja SI despues de la ULTIMA aparicion
+UTIL_ULTIMO PROC
+    PUSH BX
+    PUSH DX
+    MOV DX,CX
+    XOR BX,BX
+UU_SIG:
+    MOV CX,DX
+    CALL UTIL_BUSCAR
+    JC UU_FIN
+    MOV BX,SI
+    JMP UU_SIG
+UU_FIN:
+    CMP BX,0
+    JE UU_NO
+    MOV SI,BX
+    POP DX
+    POP BX
+    CLC
+    RET
+UU_NO:
+    POP DX
+    POP BX
+    STC
+    RET
+UTIL_ULTIMO ENDP
+
+
+; Carga un archivo completo en Util_buf y pone 0 al final
+; ENTRADA: DX=ruta ASCIIZ.  SALIDA: CF=1 error ; AX=bytes leidos
+UTIL_CARGAR PROC
+    MOV AX,3D00H
+    INT 21H
+    JC UCG_ERR
+    MOV BX,AX
+    MOV AH,3FH
+    MOV CX,8000
+    LEA DX,Util_buf
+    INT 21H
+    JC UCG_CERR
+    PUSH AX
+    MOV AH,3EH
+    INT 21H
+    POP AX
+    LEA BX,Util_buf
+    ADD BX,AX
+    MOV BYTE PTR [BX],0
+    CLC
+    RET
+UCG_CERR:
+    MOV AH,3EH
+    INT 21H
+UCG_ERR:
+    STC
+    RET
+UTIL_CARGAR ENDP
+
+
+; Abre un archivo SIN borrarlo (lo crea si no existe) y se coloca al final
+; ENTRADA: DX=ruta.  SALIDA: AX=handle ; CF=1 error
+UTIL_ABRIR_ANEXAR PROC
+    MOV AX,3D02H                ; abrir lectura y escritura
+    INT 21H
+    JNC UAA_SEEK
+    MOV AH,3CH                  ; no existe: crearlo (DX sigue con la ruta)
+    MOV CX,0
+    INT 21H
+    JC UAA_ERR
+UAA_SEEK:
+    MOV BX,AX
+    MOV AX,4202H                ; ir al final del archivo
+    MOV CX,0
+    MOV DX,0
+    INT 21H
+    JC UAA_ERR
+    MOV AX,BX                   ; AX = handle (CF = 0)
+UAA_ERR:
+    RET                         ; si hubo error, CF ya vale 1
+UTIL_ABRIR_ANEXAR ENDP
+
+
+; Escribe en un archivo SOLO los caracteres capturados de un buffer
+; de INT 21h/0Ah 
+UTIL_ESC_BUF PROC
+    PUSH SI
+    MOV SI,DX
+    XOR CH,CH
+    MOV CL,[SI+1]
+    ADD DX,2
+    CMP CX,0
+    JE UEB_FIN
+    MOV AH,40H
+    INT 21H
+UEB_FIN:
+    POP SI
+    RET
+UTIL_ESC_BUF ENDP
+
+; AL (0-255) -> digitos ASCII sin ceros a la izquierda en [DI]; DI avanza
+UTIL_NUM PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    XOR CX,CX
+    MOV BL,10
+UN_DIV:
+    XOR AH,AH
+    DIV BL
+    PUSH AX
+    INC CX
+    CMP AL,0
+    JNE UN_DIV
+UN_SAC:
+    POP AX
+    MOV AL,AH
+    ADD AL,'0'
+    MOV [DI],AL
+    INC DI
+    LOOP UN_SAC
+    POP CX
+    POP BX
+    POP AX
+    RET
+UTIL_NUM ENDP
+
+; AL (0-99) -> dos digitos ASCII en [DI]; DI avanza 2 (AX se pierde)
+UTIL_NUM2 PROC
+    MOV AH,0                    ; AH = decenas
+UN2_RESTA:
+    CMP AL,10
+    JL UN2_FIN
+    SUB AL,10
+    INC AH
+    JMP UN2_RESTA
+UN2_FIN:
+    ADD AH,'0'
+    ADD AL,'0'
+    MOV [DI],AH
+    MOV [DI+1],AL
+    ADD DI,2
+    RET
+UTIL_NUM2 ENDP
+
+; Lee un numero decimal en [SI] (salta espacios). SALIDA: AL=valor, CF=1 si no hay digitos
+UTIL_PARSE PROC
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    XOR BX,BX
+UP_ESP:
+    CMP BYTE PTR [SI],' '
+    JNE UP_DIG
+    INC SI
+    JMP UP_ESP
+UP_DIG:
+    MOV AL,[SI]
+    CMP AL,'0'
+    JB UP_FIN
+    CMP AL,'9'
+    JA UP_FIN
+    SUB AL,'0'
+    MOV DL,AL
+    MOV AL,BL
+    MOV CL,10
+    MUL CL
+    ADD AL,DL
+    MOV BL,AL
+    INC BH
+    INC SI
+    JMP UP_DIG
+UP_FIN:
+    MOV AL,BL
+    CMP BH,1
+    POP DX
+    POP CX
+    POP BX
+    RET
+UTIL_PARSE ENDP
+
+; Llena con espacios CX bytes desde DI 
+UTIL_ESPACIOS PROC
+    PUSH AX
+    PUSH CX
+    PUSH DI
+    MOV AL,' '
+    CLD
+    REP STOSB
+    POP DI
+    POP CX
+    POP AX
+    RET
+UTIL_ESPACIOS ENDP

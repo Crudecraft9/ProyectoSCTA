@@ -1,0 +1,5 @@
+; Rutas arbol de carpetas
+rutaRaiz  DB 'C:\ProyectoSCTA',0
+rutaInt1  DB 'C:\ProyectoSCTA\Galaviz Ulloa Aaron',0
+rutaInt2  DB 'C:\ProyectoSCTA\Gonzalez Llanos Jeikob Xaiver',0
+rutaInt3  DB 'C:\ProyectoSCTA\Cortes Hidalgo Carlos David',0

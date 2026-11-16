@@ -1,0 +1,51 @@
+; Datos pantalla Agregar cuenta (captura de 12 campos y guardado en cuentas.txt)
+
+    ; --- Diseno: una variable por renglon (el numero es el renglon de la pantalla) ---
+    Agr_ln00    DB ' SCTA  |  AGREGAR CUENTA  |  CAPTURA DE DATOS                                  '
+    Agr_ln02    DB '  MWxxxxkxxxOM             ____  _   _  _____  _   _  _____     _              '
+    Agr_ln03    DB '  M. ..:o:.  W            / ___|| | | || ____|| \ | ||_   _|   / \             '
+    Agr_ln04    DB '  M.:o.oo.oo W           | |    | | | ||  _|  |  \| |  | |    / _ \            '
+    Agr_ln05    DB '  M.:ooxxooo W           | |___ | |_| || |___ | |\  |  | |   / ___ \           '
+    Agr_ln06    DB '  M. :::o::  W            \____| \___/ |_____||_| \_|  |_|  /_/   \_\          '
+    Agr_ln07    DB '  MOooxxooookM                                                                 '
+    Agr_ln09    DB '             ========== Agregar nueva cuenta de usuario ==========             '
+    Agr_ln11    DB ' ---- Datos del usuario --------------- ---- Datos de la cuenta -------------- '
+    Agr_ln12    DB ' | Nombre: __________________________ | | Usuario: _________________________ | '
+    Agr_ln13    DB ' | Apellidos: _______________________ | | Contrasena: ______________________ | '
+    Agr_ln14    DB ' | ID: ______________________________ | | Confirmar contrasena: ____________ | '
+    Agr_ln15    DB ' | Correo: __________________________ | | Rol (1.Admin 2.Monitor): _________ | '
+    Agr_ln16    DB ' | Telefono: ________________________ | | Estado (1.Activa 2.Inact): _______ | '
+    Agr_ln17    DB ' | Turno (1.Manana 2.Tarde): ________ | | Zona (1.Ludoteca 2.Gral): ________ | '
+    Agr_ln18    DB ' | Guardar cuenta (Enter)             | | Cancelar: Nombre vacio + Enter     | '
+    Agr_ln19    DB ' -------------------------------------- -------------------------------------- '
+    Agr_ln21    DB '                       Todos los campos son obligatorios                       '
+
+    ; --- Mensajes (79 caracteres, se escriben en el renglon 21) ---
+    Agr_msjVacio   DB '                    ERROR: Todos los campos son obligatorios                   '
+    Agr_msjClave   DB '              ERROR: La contrasena y su confirmacion no coinciden              '
+    Agr_msjOpc     DB '              ERROR: Turno, Rol, Estado y Zona solo aceptan 1 o 2              '
+    Agr_msjOk      DB '                  Cuenta guardada. Pulsa una tecla para volver                 '
+    Agr_msjErr     DB '              ERROR: no se pudo abrir cuentas.txt. Pulsa una tecla             '
+
+    ; --- Archivo (carpeta de Cortes Hidalgo Carlos David) ---
+    Agr_ruta       DB 'C:\ProyectoSCTA\Cortes Hidalgo Carlos David\cuentas.txt',0
+    Agr_id         DW 0
+
+    ; --- Buffers: 12 campos de 32 bytes y su longitud capturada ---
+    Agr_buf        DB 384 dup(0)
+    Agr_len        DB 12 dup(0)
+    Agr_cad        DB 31,0,32 dup(0)   ; buffer de INT 21h/0Ah (max,len,caracteres)
+
+    ; --- Etiquetas que se escriben en el archivo (ranuras de 16 bytes) ---
+    Agr_etq        DB 'Nombre:         '   ; 0
+                   DB 'Apellidos:      '   ; 1
+                   DB 'ID:             '   ; 2
+                   DB 'Correo:         '   ; 3
+                   DB 'Telefono:       '   ; 4
+                   DB 'Turno:          '   ; 5
+                   DB 'Usuario:        '   ; 6
+                   DB 'Contrasena:     '   ; 7
+                   DB '                '   ; 8
+                   DB 'Rol:            '   ; 9
+                   DB 'Estado:         '   ; 10
+                   DB 'Zona:           '   ; 11

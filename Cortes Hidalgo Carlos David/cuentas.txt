@@ -1,0 +1,12 @@
+Nombre: Carlos
+Apellidos: Cort
+ID: 1
+Correo: cort
+Telefono: 311
+Turno: 1
+Usuario: carlos
+Contrasena: 23400526
+Rol: 1
+Estado: 1
+Zona: 1
+--------------------

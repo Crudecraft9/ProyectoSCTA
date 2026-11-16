@@ -1,0 +1,100 @@
+; Codigo pantalla Reportes
+
+PROC_REPORTES PROC
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Rep_logo1,11,1,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_logo2,11,2,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_logo3,11,3,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_logo4,11,4,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_logo5,11,5,1,0,0,0AH
+
+    ; 3. Imprimir titulo
+    IMPCAP_CONCOLOR Rep_titulo1,64,1,13,0,0,0AH
+    IMPCAP_CONCOLOR Rep_titulo2,64,2,13,0,0,0AH
+    IMPCAP_CONCOLOR Rep_titulo3,64,3,13,0,0,0AH
+    IMPCAP_CONCOLOR Rep_titulo4,64,4,13,0,0,0AH
+    IMPCAP_CONCOLOR Rep_titulo5,64,5,13,0,0,0AH
+
+    ; 4. Instruccion central
+    IMPCAP_CONCOLOR Rep_msjInst,50,7,15,0,0,0EH
+
+    ; 5. Vista Previa del Reporte
+    IMPCAP_CONCOLOR Rep_msjRP1,42,9,1,0,0,0EH
+    IMPCAP_CONCOLOR Rep_msjRP2,42,10,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP3,42,11,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP4,42,12,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP5,42,13,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP6,42,14,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP7,42,15,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP8,42,16,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP9,42,17,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP10,42,18,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP11,42,19,1,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjRP12,42,20,1,0,0,0BH
+    IMPCAP_CONCOLOR Rep_msjRP13,42,21,1,0,0,0AH
+
+    ; 6. Menu de Elecciones
+    IMPCAP_CONCOLOR Rep_msjMN1,33,9,46,0,0,0EH
+    IMPCAP_CONCOLOR Rep_msjMN2,33,10,46,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjMN3,33,11,46,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjMN4,33,12,46,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjMN5,33,13,46,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjMN6,33,14,46,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjMN7,33,15,46,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjMN8,33,16,46,0,0,0AH
+    IMPCAP_CONCOLOR Rep_msjMN9,33,17,46,0,0,0BH
+    IMPCAP_CONCOLOR Rep_msjMN10,33,18,46,0,0,0AH
+
+    ; 7. Pie de pagina
+    IMPCAP_CONCOLOR Rep_msjPie,80,24,0,0,0,2FH
+
+Rep_LEER_TECLA:
+    CURSOR 17,61,0          
+
+    MOV AH,1                
+    INT 21H
+    MOV Rep_OPCION,AL
+
+    CMP Rep_OPCION,'1'
+    JE Rep_imprimirReporte
+    CMP Rep_OPCION,'2'
+    JE Rep_guardarReporte
+    CMP Rep_OPCION,'3'
+    JE Rep_FIN
+    JMP Rep_LEER_TECLA
+
+Rep_imprimirReporte:
+    ;  1110 caracteres
+    MOV CX,1110
+    MOV SI,0
+
+Rep_imprimir:
+    IMPRIMIR Rep_reporte[SI]
+    INC SI
+    LOOP Rep_imprimir
+
+    IMPCAP_CONCOLOR Rep_msjImpOk,33,20,46,0,0,0EH
+    JMP Rep_LEER_TECLA
+
+Rep_guardarReporte:
+    CREAR_ARCHIVO Rep_rutaArch,0        
+    JC Rep_errorGuardar
+    MOV ID,AX                           
+    CERRAR_ARCHIVO ID 
+                  
+    ABRIR_ARCHIVO Rep_rutaArch,1        
+    JC Rep_errorGuardar
+    ESCRIBIR_ARCHIVO ID,1104,Rep_reporte
+    JC Rep_errorGuardar
+    CERRAR_ARCHIVO ID
+    IMPCAP_CONCOLOR Rep_msjGuaOk,33,20,46,0,0,0EH
+    JMP Rep_LEER_TECLA
+
+Rep_errorGuardar:
+    IMPCAP_CONCOLOR Rep_msjGuaEr,33,20,46,0,0,0CH
+    JMP Rep_LEER_TECLA
+
+Rep_FIN:
+    RET
+PROC_REPORTES ENDP
+

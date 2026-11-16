@@ -1,0 +1,215 @@
+; Codigo pantalla Agregar cuenta
+; Lee los 12 campos, revisa la contrasena y guarda en cuentas.txt
+; Si el estado es 1 (activa) tambien la agrega a operadores.txt
+
+PROC_AGREGARCUENTA PROC
+Agr_INICIO:
+    CALL Agr_DIBUJA
+    CALL Agr_CAPTURA
+    CMP Agr_nombre[1],0         ; nombre vacio = cancelar
+    JE Agr_SALIR
+    CMP Agr_clave[1],0          ; la contrasena no puede ir vacia
+    JE Agr_VACIA
+    MOV AL,Agr_clave[1]         ; contrasena = confirmacion
+    CMP AL,Agr_conf[1]
+    JE Agr_COMPARA
+    JMP Agr_NOIGUAL
+Agr_COMPARA:
+    MOV CL,AL                   ; CX = cuantos caracteres comparar
+    MOV CH,0
+    LEA SI,Agr_clave+2
+    LEA DI,Agr_conf+2
+Agr_CICLO:
+    MOV AL,[SI]
+    CMP AL,[DI]
+    JE Agr_IGUAL
+    JMP Agr_NOIGUAL
+Agr_IGUAL:
+    INC SI
+    INC DI
+    LOOP Agr_CICLO
+    JMP Agr_GUARDAR
+Agr_NOIGUAL:
+    IMPCAP_CONCOLOR Agr_msjClave,79,21,0,0,0,0CH
+    JMP Agr_ERROR
+Agr_VACIA:
+    IMPCAP_CONCOLOR Agr_msjVacio,79,21,0,0,0,0CH
+Agr_ERROR:
+    CALL TECLA
+    JMP Agr_INICIO
+Agr_SALIR:
+    RET
+
+Agr_GUARDAR:
+    LEA DX,Agr_ruta
+    CALL UTIL_ABRIR_ANEXAR
+    JC Agr_ERRARCH
+    JMP Agr_ABIERTO
+Agr_ERRARCH:
+    IMPCAP_CONCOLOR Agr_msjErr,79,21,0,0,0,0CH
+    CALL TECLA
+    RET
+Agr_ABIERTO:
+    MOV Agr_id,AX
+    ESCRIBIR_ARCHIVO Agr_id,8,Agr_etNom
+    MOV BX,Agr_id
+    LEA DX,Agr_nombre
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,11,Agr_etApe
+    MOV BX,Agr_id
+    LEA DX,Agr_apellidos
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,4,Agr_etId
+    MOV BX,Agr_id
+    LEA DX,Agr_ident
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,8,Agr_etCor
+    MOV BX,Agr_id
+    LEA DX,Agr_correo
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,10,Agr_etTel
+    MOV BX,Agr_id
+    LEA DX,Agr_telefono
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,7,FDat_etTur
+    MOV BX,Agr_id
+    LEA DX,Agr_turno
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,9,Agr_etUsu
+    MOV BX,Agr_id
+    LEA DX,Agr_usuario
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,12,Agr_etCla
+    MOV BX,Agr_id
+    LEA DX,Agr_clave
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,5,FDat_etRol
+    MOV BX,Agr_id
+    LEA DX,Agr_rol
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,8,Agr_etEst
+    MOV BX,Agr_id
+    LEA DX,Agr_estado
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,6,FDat_etZon
+    MOV BX,Agr_id
+    LEA DX,Agr_zona
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,22,FDat_sepa
+    CERRAR_ARCHIVO Agr_id
+
+    CMP Agr_estado[2],'1'       ; estado 1 = activa -> tambien es operador
+    JE Agr_ACTIVA
+    JMP Agr_FIN
+Agr_ACTIVA:
+    CALL Agr_OPERADOR
+Agr_FIN:
+    IMPCAP_CONCOLOR Agr_msjOk,79,21,0,0,0,0AH
+    CALL TECLA
+    RET
+PROC_AGREGARCUENTA ENDP
+
+; Dibuja el diseno fijo de la pantalla
+Agr_DIBUJA PROC
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Agr_ln00,79,0,0,0,0,2FH
+    IMPCAP_CONCOLOR Agr_ln02,79,2,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln03,79,3,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln04,79,4,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln05,79,5,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln06,79,6,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln07,79,7,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln09,79,9,0,0,0,0EH
+    IMPCAP_CONCOLOR Agr_ln11,79,11,0,0,0,0EH
+    IMPCAP_CONCOLOR Agr_ln12,79,12,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln13,79,13,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln14,79,14,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln15,79,15,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln16,79,16,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln17,79,17,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln18,79,18,0,0,0,0BH
+    IMPCAP_CONCOLOR Agr_ln19,79,19,0,0,0,0AH
+    IMPCAP_CONCOLOR Agr_ln21,79,21,0,0,0,0EH
+    IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
+    RET
+Agr_DIBUJA ENDP
+
+; Lee los 12 campos (cursor en el hueco de cada renglon)
+Agr_CAPTURA PROC
+    CURSOR 12,11,0
+    LECTURA_CADENA Agr_nombre
+    CURSOR 13,14,0
+    LECTURA_CADENA Agr_apellidos
+    CURSOR 14,7,0
+    LECTURA_CADENA Agr_ident
+    CURSOR 15,11,0
+    LECTURA_CADENA Agr_correo
+    CURSOR 16,13,0
+    LECTURA_CADENA Agr_telefono
+    CURSOR 17,29,0
+    LECTURA_CADENA Agr_turno
+    CURSOR 12,51,0
+    LECTURA_CADENA Agr_usuario
+    CURSOR 13,54,0
+    LECTURA_CADENA Agr_clave
+    CURSOR 14,64,0
+    LECTURA_CADENA Agr_conf
+    CURSOR 15,67,0
+    LECTURA_CADENA Agr_rol
+    CURSOR 16,69,0
+    LECTURA_CADENA Agr_estado
+    CURSOR 17,68,0
+    LECTURA_CADENA Agr_zona
+    RET
+Agr_CAPTURA ENDP
+
+; Agrega la cuenta activa a operadores.txt (usuario y contrasena para el login)
+Agr_OPERADOR PROC
+    LEA DX,FDat_rutaOper
+    CALL UTIL_ABRIR_ANEXAR
+    JC Agr_OPSALE
+    JMP Agr_OP1
+Agr_OPSALE:
+    RET
+Agr_OP1:
+    MOV Agr_id,AX
+    ESCRIBIR_ARCHIVO Agr_id,8,FDat_etNom
+    MOV BX,Agr_id
+    LEA DX,Agr_usuario
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,13,FDat_etCtl
+    MOV BX,Agr_id
+    LEA DX,Agr_clave
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,6,FDat_etZon
+    MOV BX,Agr_id
+    LEA DX,Agr_zona
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,7,FDat_etTur
+    MOV BX,Agr_id
+    LEA DX,Agr_turno
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,5,FDat_etRol
+    MOV BX,Agr_id
+    LEA DX,Agr_rol
+    CALL UTIL_ESC_BUF
+    ESCRIBIR_ARCHIVO Agr_id,2,FDat_saltoL
+    ESCRIBIR_ARCHIVO Agr_id,22,FDat_sepa
+    CERRAR_ARCHIVO Agr_id
+    RET
+Agr_OPERADOR ENDP

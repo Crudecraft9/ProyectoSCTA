@@ -1,0 +1,160 @@
+; Codigo pantalla Login (usuario = Nombre, clave = No. Control, tomados de operadores.txt)
+
+PROC_LOGIN PROC
+Log_PANTALLA:
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Util_marco,80,0,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_marco,80,24,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg1,40,2,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg2,40,3,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg3,40,4,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg4,40,5,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg5,40,6,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg6,40,7,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg7,40,8,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg8,40,9,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg9,40,10,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg10,40,11,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg11,40,12,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg12,40,13,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg13,40,14,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg14,40,15,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg15,40,16,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg16,40,17,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg17,40,18,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_lg18,40,19,0,0,0,0AH
+    IMPCAP_CONCOLOR Log_t1,37,2,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_t2,37,3,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_t3,37,4,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_t4,37,5,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_t5,37,6,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_t6,37,7,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_subtit,39,9,41,0,0,07H
+    IMPCAP_CONCOLOR Log_version,4,1,75,0,0,08H
+    IMPCAP_CONCOLOR Log_enc,36,12,43,0,0,0FH
+    IMPCAP_CONCOLOR Log_usuario,36,14,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_campoU,30,15,45,0,0,17H
+    IMPCAP_CONCOLOR Log_clave,36,17,43,0,0,0AH
+    IMPCAP_CONCOLOR Log_campoC,30,18,45,0,0,17H
+    IMPCAP_CONCOLOR Log_boton,36,20,43,0,0,0BH
+    IMPCAP_CONCOLOR Log_msjF2,36,22,43,0,0,07H
+    IMPCAP_CONCOLOR Log_msjEsc,36,23,43,0,0,07H
+    ; --- captura de usuario ---
+    MOV Util_mascara,0
+    LEA DI,Log_bufUsr
+    MOV CL,28
+    MOV DH,15
+    MOV DL,46
+    MOV BL,17H
+    CALL UTIL_LEER_CAMPO
+    CMP AL,1
+    JE Log_ESC
+    CMP AL,2
+    JE Log_F2
+    MOV AL,Util_len
+    MOV Log_lenUsr,AL
+
+    ; --- captura de clave ---
+    MOV Util_mascara,1
+    LEA DI,Log_bufPas
+    MOV CL,28
+    MOV DH,18
+    MOV DL,46
+    MOV BL,17H
+    CALL UTIL_LEER_CAMPO
+    CMP AL,1
+    JE Log_ESC
+    CMP AL,2
+    JE Log_F2
+    MOV AL,Util_len
+    MOV Log_lenPas,AL
+    JMP Log_VALIDA
+
+Log_ESC:
+    MOV AL,0                    ; AL=0 -> salir del sistema
+    RET
+Log_F2:
+    CALL PROC_AGREGARCUENTA     ; crear nuevo usuario
+    JMP Log_PANTALLA
+
+Log_VALIDA:
+    CALL LOG_VALIDAR
+    JNC Log_OK
+    JMP Log_FALLO
+Log_OK:
+    MOV AL,1                    ; AL=1 -> acceso concedido
+    RET
+
+Log_FALLO:
+    CMP Log_err,1
+    JNE Log_E2
+    JMP Log_E1
+Log_E2:
+    IMPCAP_CONCOLOR Log_msjErr,36,21,43,0,0,0CH
+    JMP Log_EF
+Log_E1:
+    IMPCAP_CONCOLOR Log_msjNoU,36,21,43,0,0,0CH
+Log_EF:
+    CALL TECLA
+    JMP Log_PANTALLA
+PROC_LOGIN ENDP
+
+; Busca en operadores.txt un registro con Nombre = usuario y No. Control = clave
+; SALIDA: CF=0 valido (y guarda Ses_zona / Ses_rol) ; CF=1 invalido, Log_err=1 sin usuarios
+LOG_VALIDAR PROC
+    LEA DX,FDat_rutaOper
+    CALL UTIL_CARGAR
+    JNC LV_LEE
+    MOV Log_err,1
+    STC
+    RET
+LV_LEE:
+    CMP AX,0
+    JNE LV_INI
+    MOV Log_err,1
+    STC
+    RET
+LV_INI:
+    LEA SI,Util_buf
+LV_SIG:
+    LEA DI,FDat_etNom
+    MOV CX,8
+    CALL UTIL_BUSCAR
+    JC LV_NO
+    LEA DI,Log_bufUsr
+    MOV CL,Log_lenUsr
+    XOR CH,CH
+    CALL UTIL_COMPARA
+    JC LV_SIG
+    LEA DI,FDat_etCtl
+    MOV CX,13
+    CALL UTIL_BUSCAR
+    JC LV_NO
+    LEA DI,Log_bufPas
+    MOV CL,Log_lenPas
+    XOR CH,CH
+    CALL UTIL_COMPARA
+    JC LV_SIG
+    MOV BX,SI                   ; credenciales validas: leer zona y rol del registro
+    LEA DI,FDat_etZon
+    MOV CX,6
+    CALL UTIL_BUSCAR
+    JC LV_ROL
+    MOV AL,[SI]
+    MOV Ses_zona,AL
+LV_ROL:
+    MOV SI,BX
+    LEA DI,FDat_etRol
+    MOV CX,5
+    CALL UTIL_BUSCAR
+    JC LV_FIN
+    MOV AL,[SI]
+    MOV Ses_rol,AL
+LV_FIN:
+    CLC
+    RET
+LV_NO:
+    MOV Log_err,2
+    STC
+    RET
+LOG_VALIDAR ENDP

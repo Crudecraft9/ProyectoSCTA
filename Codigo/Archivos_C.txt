@@ -1,0 +1,203 @@
+; Codigo pantalla Archivos (crear carpeta / crear / escribir / leer)
+
+PROC_ARCHIVOS PROC
+Arc_PANTALLA:
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Util_marco,80,0,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr1,57,1,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr2,57,2,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr3,57,3,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr4,57,4,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr5,57,5,0,0,0,0AH
+    IMPCAP_CONCOLOR Util_hdr6,57,6,0,0,0,0AH
+    IMPCAP_CONCOLOR Arc_banda,80,7,0,0,0,02H
+    IMPCAP_CONCOLOR Arc_pTit,44,9,18,0,0,0AH
+    IMPCAP_CONCOLOR Arc_op1,44,11,18,0,0,0AH
+    IMPCAP_CONCOLOR Arc_op2,44,13,18,0,0,0AH
+    IMPCAP_CONCOLOR Arc_op3,44,15,18,0,0,0AH
+    IMPCAP_CONCOLOR Arc_op4,44,17,18,0,0,0AH
+    IMPCAP_CONCOLOR Arc_op5,44,19,18,0,0,0BH
+    IMPCAP_CONCOLOR Arc_pPro,44,21,18,0,0,0AH
+    IMPCAP_CONCOLOR Arc_pBot,44,22,18,0,0,0BH
+    IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
+Arc_TECLA:
+    CURSOR 21,50,0
+    MOV AH,1
+    INT 21H
+    MOV Arc_OPC,AL
+    CMP Arc_OPC,'5'
+    JNE Arc_N5
+    RET                         ; volver al menu principal
+Arc_N5:
+    CMP Arc_OPC,'1'
+    JNE Arc_N1
+    CALL ARC_OP_CARPETA
+    JMP Arc_RESULTADO
+Arc_N1:
+    CMP Arc_OPC,'2'
+    JNE Arc_N2
+    CALL ARC_OP_ARCHIVO
+    JMP Arc_RESULTADO
+Arc_N2:
+    CMP Arc_OPC,'3'
+    JNE Arc_N3
+    CALL ARC_OP_ESCRIBIR
+    JMP Arc_RESULTADO
+Arc_N3:
+    CMP Arc_OPC,'4'
+    JNE Arc_N4
+    CALL ARC_OP_LEER
+    CMP AL,0
+    JNE Arc_RESULTADO
+    JMP Arc_PANTALLA            ; tras leer se redibuja el menu
+Arc_N4:
+    JMP Arc_TECLA
+
+; AL: 0=exito 1=error 2=cancelado
+Arc_RESULTADO:
+    CMP AL,0
+    JNE Arc_R1
+    JMP Arc_OK
+Arc_R1:
+    CMP AL,2
+    JNE Arc_R2
+    JMP Arc_CAN
+Arc_R2:
+    JMP Arc_ERR
+Arc_OK:
+    IMPCAP_CONCOLOR Arc_msjSi,34,23,23,0,0,2FH
+    JMP Arc_TECLA
+Arc_CAN:
+    IMPCAP_CONCOLOR Arc_msjCan,34,23,23,0,0,6FH
+    JMP Arc_TECLA
+Arc_ERR:
+    IMPCAP_CONCOLOR Arc_msjNo,34,23,23,0,0,4FH
+    JMP Arc_TECLA
+PROC_ARCHIVOS ENDP
+
+; ---- Operaciones: devuelven AL=0 exito, 1 error, 2 cancelado ----
+ARC_OP_CARPETA PROC
+    MOV AH,39H
+    LEA DX,Arc_rutaCarp
+    INT 21H
+    JC AOC_ERR
+    MOV AL,0
+    RET
+AOC_ERR:
+    MOV AL,1
+    RET
+ARC_OP_CARPETA ENDP
+
+ARC_OP_ARCHIVO PROC
+    MOV AH,3CH
+    XOR CX,CX
+    LEA DX,Arc_rutaArch
+    INT 21H
+    JC AOA_ERR
+    MOV BX,AX
+    MOV AH,3EH
+    INT 21H
+    MOV AL,0
+    RET
+AOA_ERR:
+    MOV AL,1
+    RET
+ARC_OP_ARCHIVO ENDP
+
+ARC_OP_ESCRIBIR PROC
+    IMPCAP_CONCOLOR Arc_msjTexto,18,20,18,0,0,0EH
+    MOV Util_mascara,0
+    LEA DI,Arc_buf
+    MOV CL,26
+    MOV DH,20
+    MOV DL,36
+    MOV BL,0EH
+    CALL UTIL_LEER_CAMPO
+    PUSH AX
+    IMPCAP_CONCOLOR Arc_borra,44,20,18,0,0,0AH
+    POP AX
+    CMP AL,0
+    JE AOE_SEG
+    MOV AL,2
+    RET
+AOE_SEG:
+    CMP Util_len,0
+    JNE AOE_GRABA
+    MOV AL,2
+    RET
+AOE_GRABA:
+    LEA DX,Arc_rutaArch
+    CALL UTIL_ABRIR_ANEXAR
+    JC AOE_ERR
+    MOV Arc_id,AX
+    MOV BX,AX
+    MOV AH,40H
+    XOR CH,CH
+    MOV CL,Util_len
+    LEA DX,Arc_buf
+    INT 21H
+    JC AOE_CERR
+    MOV AH,40H
+    MOV BX,Arc_id
+    MOV CX,2
+    LEA DX,Arc_crlf
+    INT 21H
+    JC AOE_CERR
+    MOV BX,Arc_id
+    MOV AH,3EH
+    INT 21H
+    MOV AL,0
+    RET
+AOE_CERR:
+    MOV BX,Arc_id
+    MOV AH,3EH
+    INT 21H
+AOE_ERR:
+    MOV AL,1
+    RET
+ARC_OP_ESCRIBIR ENDP
+
+ARC_OP_LEER PROC
+    MOV AX,3D00H
+    LEA DX,Arc_rutaArch
+    INT 21H
+    JC AOL_ERR
+    MOV BX,AX
+    MOV AH,3FH
+    MOV CX,1500
+    LEA DX,Util_buf
+    INT 21H
+    JC AOL_CERR
+    MOV Arc_n,AX
+    MOV AH,3EH
+    INT 21H
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Arc_titLeer,24,0,1,0,0,0EH
+    CURSOR 2,0,0
+    MOV CX,Arc_n
+    CMP CX,0
+    JE AOL_VAC
+    LEA SI,Util_buf
+AOL_CIC:
+    PUSH CX
+    MOV DL,[SI]
+    MOV AH,02H
+    INT 21H
+    POP CX
+    INC SI
+    LOOP AOL_CIC
+    JMP AOL_ESP
+AOL_VAC:
+    IMPCAP_CONCOLOR Arc_msjVacio,23,2,1,0,0,0EH
+AOL_ESP:
+    IMPCAP_CONCOLOR Arc_msjPulsa,80,24,0,0,0,2FH
+    CALL TECLA
+    MOV AL,0
+    RET
+AOL_CERR:
+    MOV AH,3EH
+    INT 21H
+AOL_ERR:
+    MOV AL,1
+    RET
+ARC_OP_LEER ENDP

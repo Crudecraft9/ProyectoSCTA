@@ -1,0 +1,182 @@
+; Codigo pantalla Seven Segment
+
+PROC_SEVENSEG PROC
+    CALL Sev_DIBUJA
+    CALL Sev_ACTUALIZA
+Sev_ESPERA:
+    CALL TECLA
+    CMP AL,27
+    JE Sev_SALIR
+    CMP AL,'+'
+    JE Sev_KTSUBE
+    CMP AL,'='
+    JE Sev_KTSUBE
+    CMP AL,'-'
+    JE Sev_KTBAJA
+    CMP AL,'>'
+    JE Sev_KHSUBE
+    CMP AL,'.'
+    JE Sev_KHSUBE
+    CMP AL,'<'
+    JE Sev_KHBAJA
+    CMP AL,','
+    JE Sev_KHBAJA
+    JMP Sev_ESPERA
+Sev_KTSUBE:
+    CMP Sev_temp,99
+    JGE Sev_ESPERA
+    INC Sev_temp
+    JMP Sev_REFRESCA
+Sev_KTBAJA:
+    CMP Sev_temp,0
+    JE Sev_ESPERA
+    DEC Sev_temp
+    JMP Sev_REFRESCA
+Sev_KHSUBE:
+    CMP Sev_hum,99
+    JGE Sev_ESPERA
+    INC Sev_hum
+    JMP Sev_REFRESCA
+Sev_KHBAJA:
+    CMP Sev_hum,0
+    JE Sev_ESPERA
+    DEC Sev_hum
+Sev_REFRESCA:
+    CALL Sev_ACTUALIZA
+    JMP Sev_ESPERA
+Sev_SALIR:
+    RET
+PROC_SEVENSEG ENDP
+
+; Dibujar
+Sev_DIBUJA PROC
+    CALL CLEAN_SCREEN
+    IMPCAP_CONCOLOR Sev_ln00,79,0,0,0,0,2FH
+    IMPCAP_CONCOLOR Sev_ln02,79,2,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln03,79,3,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln04,79,4,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln05,79,5,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln06,79,6,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln08,79,8,0,0,0,0EH
+    IMPCAP_CONCOLOR Sev_ln10,79,10,0,0,0,0EH
+    IMPCAP_CONCOLOR Sev_ln11,79,11,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln12,79,12,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln13,79,13,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln14,79,14,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln15,79,15,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln16,79,16,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln17,79,17,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_ln18,79,18,0,0,0,0AH
+    IMPCAP_CONCOLOR Sev_msjTec,60,20,10,0,0,0EH
+    IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
+    RET
+Sev_DIBUJA ENDP
+
+; Mostrar valores
+Sev_ACTUALIZA PROC
+    LEA DI,Sev_tTemp
+    MOV AL,Sev_temp
+    CALL UTIL_NUM2
+    IMPCAP_CONCOLOR Sev_tTemp,2,11,19,0,0,0EH
+    LEA DI,Sev_tHum
+    MOV AL,Sev_hum
+    CALL UTIL_NUM2
+    IMPCAP_CONCOLOR Sev_tHum,2,13,19,0,0,0EH
+    CALL Sev_EST_TEMP
+    CALL Sev_EST_HUM
+
+    MOV AL,Sev_temp             
+    MOV CL,0                    
+Sev_RESTA:
+    CMP AL,10
+    JL Sev_FINRESTA
+    SUB AL,10
+    INC CL
+    JMP Sev_RESTA
+Sev_FINRESTA:                   
+    MOV CH,AL                  
+    MOV BH,0
+    MOV BL,CL
+    MOV AL,Sev_tabla[BX]        
+    MOV DX,2030H
+    OUT DX,AL
+    MOV BL,CH
+    MOV AL,Sev_tabla[BX]       
+    INC DX
+    OUT DX,AL
+    RET
+Sev_ACTUALIZA ENDP
+; Temperatura: ideal 18 a 27 C , alta >= 28 C , baja < 18 C
+Sev_EST_TEMP PROC
+    CMP Sev_temp,28
+    JGE Sev_T1
+    CMP Sev_temp,18
+    JGE Sev_T2
+    CALL Sev_TBAJA
+    RET
+Sev_T1:
+    CALL Sev_TALTA
+    RET
+Sev_T2:
+    CALL Sev_TNORMAL
+    RET
+Sev_EST_TEMP ENDP
+
+Sev_TNORMAL PROC
+    IMPCAP_CONCOLOR Sev_vInact,16,11,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vExtN,16,12,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vOff,16,14,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vNorm,16,15,60,0,0,0AH
+    RET
+Sev_TNORMAL ENDP
+
+Sev_TALTA PROC                  ; enfria y enciende extractor
+    IMPCAP_CONCOLOR Sev_vCliA,16,11,60,0,0,0CH
+    IMPCAP_CONCOLOR Sev_vExtA,16,12,60,0,0,0CH
+    IMPCAP_CONCOLOR Sev_vOff,16,14,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vTAlta,16,15,60,0,0,0CH
+    RET
+Sev_TALTA ENDP
+
+Sev_TBAJA PROC                  ; calefaccion encendida
+    IMPCAP_CONCOLOR Sev_vInact,16,11,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vExtN,16,12,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vOn,16,14,60,0,0,0CH
+    IMPCAP_CONCOLOR Sev_vTBaja,16,15,60,0,0,0CH
+    RET
+Sev_TBAJA ENDP
+
+; Humedad: ideal 45 a 55 % , alta > 55 % , baja < 45 %
+Sev_EST_HUM PROC
+    CMP Sev_hum,56
+    JGE Sev_H1
+    CMP Sev_hum,45
+    JGE Sev_H2
+    CALL Sev_HBAJA
+    RET
+Sev_H1:
+    CALL Sev_HALTA
+    RET
+Sev_H2:
+    CALL Sev_HNORMAL
+    RET
+Sev_EST_HUM ENDP
+
+Sev_HNORMAL PROC
+    IMPCAP_CONCOLOR Sev_vInact,16,13,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vNorm,16,16,60,0,0,0AH
+    RET
+Sev_HNORMAL ENDP
+
+; deshumidificador activo
+Sev_HALTA PROC                  
+    IMPCAP_CONCOLOR Sev_vDesA,16,13,60,0,0,0CH
+    IMPCAP_CONCOLOR Sev_vHAlta,16,16,60,0,0,0CH
+    RET
+Sev_HALTA ENDP
+
+Sev_HBAJA PROC
+    IMPCAP_CONCOLOR Sev_vInact,16,13,60,0,0,0AH
+    IMPCAP_CONCOLOR Sev_vHBaja,16,16,60,0,0,0CH
+    RET
+Sev_HBAJA ENDP

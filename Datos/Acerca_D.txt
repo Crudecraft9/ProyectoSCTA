@@ -1,0 +1,65 @@
+; Datos pantalla Acerca De
+    ; 1. Logo
+    AcD_logo1  db ' |\_   _/| ' ;11
+    AcD_logo2  db '||  \ /  ||'
+    AcD_logo3  db '||   |   ||'
+    AcD_logo4  db '|_\__|__/_|'
+    AcD_logo5  db '   \___/   '
+
+    ; 2. Cadenas info
+    AcD_msjBorde    DB 80 dup('=')
+    AcD_msjTitulo1  DB '================ SCTA =================' ;39
+    AcD_msjTitulo2  DB 'Sistema de Control Termico Automatizado' ;39
+    AcD_msjVersion  DB 'Version 1.0' ;11
+    AcD_msjAutores  DB 'Autores:' ;8
+    AcD_msjA1       DB 'Aaron Galaviz Ulloa' ;19
+    AcD_msjA2       DB 'Jeikob Xaiver Gonzalez Llanos' ;29
+    AcD_msjA3       DB 'Carlos David Cortes Hidalgo' ;27
+    AcD_msjPie      DB ' Equipo: Galaviz, Gonzalez, Cortes | Lenguajes de Interfaz 5-A | SCTA v1.0      ' ;80
+
+    ; 3. Titulo
+    AcD_titulo1  db '     _      ____  _____  ____    ____     _       ____   _____  ' ;64
+    AcD_titulo2  db '    / \    / ___|| ____||  _ \  / ___|   / \     |  _ \ | ____| ' ;64
+    AcD_titulo3  db '   / _ \  | |    |  _|  | |_) || |      / _ \    | | | ||  _|   ' ;64
+    AcD_titulo4  db '  / ___ \ | |___ | |___ |  _ < | |___  / ___ \   | |_| || |___  ' ;64
+    AcD_titulo5  db ' /_/   \_\ \____||_____||_| \_\ \____|/_/   \_\  |____/ |_____| ' ;64
+
+    ; 4. fotoAaron
+    AcD_aaron1   db '::::::::=+=-::::::::' ;20
+    AcD_aaron2   db '::::::=@@@@@@%::::::' ;20
+    AcD_aaron3   db ':::::+@@####@@+:::::' ;20
+    AcD_aaron4   db ':::::*%#+==++%=:::::' ;20
+    AcD_aaron5   db ':::::=%%#**%*=::::::' ;20
+    AcD_aaron6   db ':::::-++#++=--::::::' ;20
+    AcD_aaron7   db ':::::-+*%#*+=:::::::' ;20
+    AcD_aaron8   db ':::-===#**++*-::::::' ;20
+    AcD_aaron9   db ':-==---+#*+*=:.:--::' ;20
+    AcD_aaron10  db '-::--===-+==:--=--::' ;20
+    AcD_aaron11  db '::::-#=::::::---=-::' ;20
+
+    ; 5. fotoJeikob
+    AcD_jeikob1  db "c;O0:,...;:'.;c,..'," ;20
+    AcD_jeikob2  db ".x0;,;cc:,...,....'," ;20
+    AcD_jeikob3  db "',0k,.           .cc" ;20
+    AcD_jeikob4  db "';0d    ..  .,'.. .." ;20
+    AcD_jeikob5  db "',d, ...:odkkxdo:..'" ;20
+    AcD_jeikob6  db "''.   .,:o00dc:,'..." ;20
+    AcD_jeikob7  db "'.   .;cldlxlllc, .." ;20
+    AcD_jeikob8  db ",'..',cdxlxddkxoc',;" ;20
+    AcD_jeikob9  db "';o' .,:dcxkxldo;.,;" ;20
+    AcD_jeikob10 db "..Nkc,.';odxxdxo:.,'" ;20
+    AcD_jeikob11 db " .Nkc.,c;:llcldo;.. " ;20
+
+    ; 6. fotoCarlos
+    AcD_carlos1  db '.::.::.*@@@@=::..:::' ;20
+    AcD_carlos2  db ':::..#@@@@@@@@#..:.:' ;20
+    AcD_carlos3  db ':::.@@@@@@@@@@@+..::' ;20
+    AcD_carlos4  db '...:*@%=--::-@@-::::' ;20
+    AcD_carlos5  db ':..:-#+#*=-*+++:.:::' ;20
+    AcD_carlos6  db '.:...==----::--::.::' ;20
+    AcD_carlos7  db ':.:.:.=-==--:-::...:' ;20
+    AcD_carlos8  db ':::::.-+=----:::.:::' ;20
+    AcD_carlos9  db ':..:=%+*%%#*=*@%=:.:' ;20
+    AcD_carlos10 db '@@@@@@@*=---*@@@@@@@' ;20
+    AcD_carlos11 db '@@@@@@@@@@@@@@@@@@@@' ;20
+

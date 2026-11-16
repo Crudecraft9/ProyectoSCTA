@@ -1,0 +1,82 @@
+; Datoos pantalla formulario
+
+    ; 1. Logo
+    FDat_logo1  db ' |\_   _/| ' ;11
+    FDat_logo2  db '||  \ /  ||'
+    FDat_logo3  db '||   |   ||'
+    FDat_logo4  db '|_\__|__/_|'
+    FDat_logo5  db '   \___/   '
+
+    ; 3. Titulo
+    FDat_titulo1  db '  ____  ___   __    _    _  _   _  _       _     __    _   ___  ';64
+    FDat_titulo2  db ' |  __ / _ \ | _ \ |  \/  || | | || |     / \   | _ \ | | / _ \ ';64
+    FDat_titulo3  db ' | |_ | | | || _)  | |\/| || | | || |    / _ \  | _)  | || | | |';64
+    FDat_titulo4  db ' |  _|| |_|  | _ < | |  | || |_| || |_  / ___ \ | _ < | || |_| |';64
+    FDat_titulo5  db ' |_|   \___/ |_| \_| |  | | \___/ |___|/_/   \_\|_| \_|_| \___/ ';64
+
+    FDat_msjInst   DB '========== Ingresa los siguientes datos ==========' ;50
+
+    FDat_msjDP1  DB ' ---- Registro de Operador ---------- '; 38
+    FDat_msjDP2  DB '| Nombre: __________________________ |'; 38
+    FDat_msjDP3  DB '|                                    |'; 38
+    FDat_msjDP4  DB '| No. Control: _____________________ |'; 38
+    FDat_msjDP5  DB '|                                    |'; 38
+    FDat_msjDP6  DB '| Zona (1.Ludoteca 2.Gral): ________ |'; 38
+    FDat_msjDP7  DB '|                                    |'; 38
+    FDat_msjDP8  DB '| Turno (1.Manana 2.Tarde): ________ |'; 38
+    FDat_msjDP9  DB '|                                    |'; 38
+    FDat_msjDP10 DB '| Rol (1.Admin 2.Monitor): _________ |'; 38
+    FDat_msjDP11 DB '|                                    |'; 38
+    FDat_msjDP12 DB '| Guardar y Salir (Enter)            |'; 38
+    FDat_msjDP13 DB ' ------------------------------------ '; 38
+
+    FDat_msjCF1  DB ' ---- Configuracion SCTA ------------ '; 38
+    FDat_msjCF2  DB '| Temp. Maxima (C): ________________ |'; 38
+    FDat_msjCF3  DB '|                                    |'; 38
+    FDat_msjCF4  DB '| Humedad Maxima (%): ______________ |'; 38
+    FDat_msjCF5  DB '|                                    |'; 38
+    FDat_msjCF6  DB '| Ventilacion (1.Auto 2.On): _______ |'; 38
+    FDat_msjCF7  DB '|                                    |'; 38
+    FDat_msjCF8  DB '| Alerta Goteras (1.Si 2.No): ______ |'; 38
+    FDat_msjCF9  DB '|                                    |'; 38
+    FDat_msjCF10 DB '| Rol (1.Admin 2.Monitor): _________ |'; 38
+    FDat_msjCF11 DB '|                                    |'; 38
+    FDat_msjCF12 DB '| Guardar parametros (Enter)         |'; 38
+    FDat_msjCF13 DB ' ------------------------------------ '; 38
+
+    FDat_msjPie  DB ' Equipo: Galaviz, Gonzalez, Cortes | Lenguajes de Interfaz 5-A | SCTA v1.0      ' ;80
+
+    ; 5. Archivos (rutas ASCIIZ e identificadores propios)
+    FDat_rutaOper DB 'C:\ProyectoSCTA\Galaviz Ulloa Aaron\operadores.txt',0
+    FDat_rutaConf DB 'C:\ProyectoSCTA\Galaviz Ulloa Aaron\configuracion.txt',0
+    FDat_idOper   DW 0
+    FDat_idConf   DW 0
+
+    ; 6. Buffers de captura
+    FDat_nombre  DB 26,0,27 dup(' ')
+    FDat_control DB 21,0,22 dup(' ')
+    FDat_zona    DB 2,0,3 dup(' ')
+    FDat_turno   DB 2,0,3 dup(' ')
+    FDat_rol     DB 2,0,3 dup(' ')
+    FDat_tempMax DB 16,0,17 dup(' ')
+    FDat_humMax  DB 14,0,15 dup(' ')
+    FDat_venti   DB 2,0,3 dup(' ')
+    FDat_goteras DB 2,0,3 dup(' ')
+
+    ; 7. Etiquetas que se escriben en el archivo
+    FDat_etNom  DB 'Nombre: '             ;8
+    FDat_etCtl  DB 'No. Control: '        ;13
+    FDat_etZon  DB 'Zona: '               ;6
+    FDat_etTur  DB 'Turno: '              ;7
+    FDat_etRol  DB 'Rol: '                ;5
+    FDat_etTmp  DB 'Temp. Maxima (C): '   ;18
+    FDat_etHum  DB 'Humedad Maxima (%): ' ;20
+    FDat_etVen  DB 'Ventilacion: '        ;13
+    FDat_etGot  DB 'Alerta Goteras: '     ;16
+    FDat_saltoL DB 13,10                  ;2
+    FDat_sepa   DB '--------------------',13,10 ;22
+
+    ; 8. Mensajes de captura
+    FDat_msjOtro DB ' Registro guardado.  Capturar otro?   [1] Si    [2] No ' ;55
+    FDat_msjErr  DB ' ERROR: no se pudieron abrir los archivos. Pulsa tecla ' ;55
+

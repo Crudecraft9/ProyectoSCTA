@@ -1,0 +1,8 @@
+; Codigo crear arbol de carpetas
+PROC_CREAR_CARPETAS PROC
+    CREAR_CARPETA rutaRaiz
+    CREAR_CARPETA rutaInt1
+    CREAR_CARPETA rutaInt2
+    CREAR_CARPETA rutaInt3
+    RET
+PROC_CREAR_CARPETAS ENDP

@@ -1,0 +1,78 @@
+; Datos pantalla reportes
+
+    ; 1. Logo
+    Rep_logo1  db ' |\_   _/| ' ;11
+    Rep_logo2  db '||  \ /  ||' ;11
+    Rep_logo3  db '||   |   ||' ;11
+    Rep_logo4  db '|_\__|__/_|' ;11
+    Rep_logo5  db '   \___/   ' ;11
+
+    ; 2. Titulo
+    Rep_titulo1  db '     ____   _____  ____    ___   ____   _____  _____  ____      ' ;64
+    Rep_titulo2  db '    |  _ \ | ____||  _ \  / _ \ |  _ \ |_   _|| ____|/ ___|     ' ;64
+    Rep_titulo3  db '    | |_) ||  _|  | |_) || | | || |_) |  | |  |  _|  \___ \     ' ;64
+    Rep_titulo4  db '    |  _ < | |___ |  __/ | |_| ||  _ <   | |  | |___  ___) |    ' ;64
+    Rep_titulo5  db '    |_| \_\|_____||_|     \___/ |_| \_\  |_|  |_____||____/     ' ;64
+
+    Rep_msjInst  DB '======== Vista Previa y Envio de Reporte =========' ;50
+
+    ; 3. Vista Previa Reporte
+    Rep_msjRP1   DB ' ---- Vista Previa: Reporte SCTA -------- ' ;42
+    Rep_msjRP2   DB '| Operador: Aaron Galaviz Ulloa          |' ;42
+    Rep_msjRP3   DB '| ID: 21400123            Turno: Manana  |' ;42
+    Rep_msjRP4   DB '| Zona: Ludoteca          Rol: Admin     |' ;42
+    Rep_msjRP5   DB '| -------------------------------------- |' ;42
+    Rep_msjRP6   DB '| Temp. Actual: 29 C   Limite: 28 C      |' ;42
+    Rep_msjRP7   DB '| Humedad Rel.: 65 %   Max: 60 %         |' ;42
+    Rep_msjRP8   DB '| Ventilacion:  ACTIVA (Modo Auto)       |' ;42
+    Rep_msjRP9   DB '| Persianas:    CERRADAS                 |' ;42
+    Rep_msjRP10  DB '| Goteras:      SIN ALERTA               |' ;42
+    Rep_msjRP11  DB '| Fecha:        13 de Octubre del 2026   |' ;42
+    Rep_msjRP12  DB '| Estado Gral:  ESTABILIZANDO ZONA       |' ;42
+    Rep_msjRP13  DB ' ---------------------------------------- ' ;42
+
+    ; 4. Menu
+    Rep_msjMN1   DB ' ---- Opciones de Reporte ------ ' ;33
+    Rep_msjMN2   DB '|                               |' ;33
+    Rep_msjMN3   DB '| 1. Imprimir reporte           |' ;33
+    Rep_msjMN4   DB '|                               |' ;33
+    Rep_msjMN5   DB '| 2. Guardar reporte            |' ;33
+    Rep_msjMN6   DB '|                               |' ;33
+    Rep_msjMN7   DB '| 3. Salir                      |' ;33
+    Rep_msjMN8   DB '|                               |' ;33
+    Rep_msjMN9   DB '| Selecciona [   ]              |' ;33
+    Rep_msjMN10  DB ' ------------------------------- ' ;33
+
+    Rep_msjImpOk DB 'Reporte enviado a la impresora!  ' ;33
+    Rep_rutaArch DB 'C:\ProyectoSCTA\Galaviz Ulloa Aaron\reporte.txt',0 ; 
+    Rep_msjGuaOk DB 'Reporte guardado en archivo!     ' ;33
+    Rep_msjGuaEr DB 'Error al guardar el reporte!     ' ;33
+    Rep_msjPie   DB ' Equipo: Galaviz, Gonzalez, Cortes | Lenguajes de Interfaz 5-A | SCTA v1.0      ' ;80
+    Rep_OPCION   DB 0
+
+    ; 5. Impresora
+    Rep_reporte  DB '********************************************',10,13 ;44
+             DB '*             Reporte de SCTA              *',10,13
+             DB '*   == Biblioteca Central - Ludoteca ==    *',10,13
+             DB '********************************************',10,13
+             DB '* =========== Datos del Operador ========= *',10,13
+             DB '* Nombre completo:                         *',10,13
+             DB '* Aaron Galaviz Ulloa                      *',10,13
+             DB '* ID:                                      *',10,13
+             DB '* 21400123                                 *',10,13
+             DB '* Zona y Turno:                            *',10,13
+             DB '* Ludoteca - Turno Manana (Admin)          *',10,13
+             DB '* ============ Lectura Termica =========== *',10,13
+             DB '* Temperatura Actual / Limite:             *',10,13
+             DB '* 29 C / 28 C                              *',10,13
+             DB '* Humedad Relativa / Maxima:               *',10,13
+             DB '* 65 % / 60 %                              *',10,13
+             DB '* ========== Estado de Actuadores ======== *',10,13
+             DB '* Ventilacion:                             *',10,13
+             DB '* ACTIVA (Modo Automatico)                 *',10,13
+             DB '* Persianas y Goteras:                     *',10,13
+             DB '* Persianas Cerradas - Sin Goteras         *',10,13
+             DB '* Fecha del reporte:                       *',10,13
+             DB '* 13 de Octubre del 2026                   *',10,13
+             DB '********************************************',10,13
+

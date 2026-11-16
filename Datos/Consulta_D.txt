@@ -1,0 +1,42 @@
+; Datos pantalla Consulta Termica (LCD)
+
+    Con_titulo     DB "========== CONSULTA TERMICA DEL SISTEMA =========="
+    Con_bTopI      DB "---- Lectura actual ----------------"
+    Con_bTopD      DB "---- Resultado ---------------------"
+    Con_bBot       DB "------------------------------------"
+    Con_bVac       DB "|                                  |"
+    Con_fTemp      DB "| Temperatura:                     |"
+    Con_fUmb       DB "| Umbral:                          |"
+    Con_fZona      DB "| Zona:                            |"
+    Con_fFecha     DB "| Fecha:                           |"
+    Con_fEst       DB "| Estado:                          |"
+    Con_fVen       DB "| Ventilacion:                     |"
+    Con_fReg       DB "| Regla:                           |"
+    Con_fLcd       DB "| LCD:                             |"
+    Con_bNormal    DB "  ",16," NORMAL ",17,"  "
+    Con_bAlerta    DB "  ",16," ALERTA ",17,"  "
+    Con_venOff     DB "APAGADA"
+    Con_venOn      DB "ACTIVA "
+    Con_tLcd       DB "2040h a 206Fh"
+    Con_avN        DB "Temperatura normal: no requiere ventilacion.","        "
+    Con_avA        DB "Alerta termica: Se requiere ventilacion.","            "
+    Con_msjTec     DB "[+] Subir temp.   [-] Bajar temp.   [ESC] Volver al menu"
+
+    ; Valores dinamicos (se arman en tiempo de ejecucion)
+    Con_tTemp      DB 6 dup(' ')
+    Con_tUmb       DB 6 dup(' ')
+    Con_tZona      DB 8 dup(' ')
+    Con_tFecha     DB 10 dup(' ')
+    Con_tReg       DB 17 dup(' ')
+    Con_lcd        DB 32 dup(' ')
+    Con_zLud       DB "Ludoteca"
+    Con_zGen       DB "General "
+    Con_sufReg     DB " C = ALERTA"
+    Con_lcdN       DB "Estado normal   "
+    Con_lcdA       DB "Estado Alerta   "
+    Con_lcdU       DB " C U="
+    Con_temp       DB 22        ; lectura simulada (+ / - la modifican)
+    Con_umbral     DB 28        ; se sobrescribe con configuracion.txt
+    Con_ventMod    DB '1'       ; 1=Auto 2=On (de configuracion.txt)
+    Con_alerta     DB 0
+    Con_vent       DB 0

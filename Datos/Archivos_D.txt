@@ -1,0 +1,27 @@
+; Datos pantalla Archivos (menu de pruebas de carpetas/archivos)
+
+    Arc_banda      DB 176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177,176,177,178,177
+    Arc_pTit       DB 176,177,178,219,"  M E N U   D E   A R C H I V O S   ",219,178,177,176
+    Arc_op1        DB "  ",16," [1]  CREAR CARPETA                   ",17,"  "
+    Arc_op2        DB "  ",16," [2]  CREAR ARCHIVO                   ",17,"  "
+    Arc_op3        DB "  ",16," [3]  ESCRIBIR ARCHIVO                ",17,"  "
+    Arc_op4        DB "  ",16," [4]  LEER CONTENIDO DE ARCHIVO       ",17,"  "
+    Arc_op5        DB "  ",16," [5]  VOLVER AL MENU                  ",17,"  "
+    Arc_pPro       DB "      SELECCIONA UNA OPCION:  [   ]","         "
+    Arc_pBot       DB 223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223
+    Arc_msjSi      DB "   Operaci",162,"n exitosa!","             "
+    Arc_msjNo      DB "   Error: la operacion fallo","      "
+    Arc_msjCan     DB "   Operacion cancelada","            "
+    Arc_msjTexto   DB "Texto a escribir: "
+    Arc_borra      DB 44 dup(' ')
+    Arc_titLeer    DB "CONTENIDO DE archivo.txt"
+    Arc_msjVacio   DB "(el archivo esta vacio)"
+    Arc_msjPulsa   DB " Pulsa una tecla para volver al menu ","                                           "
+
+    Arc_rutaCarp   DB "C:\ProyectoSCTA\Gonzalez Llanos Jeikob Xaiver\Pruebas",0
+    Arc_rutaArch   DB "C:\ProyectoSCTA\Gonzalez Llanos Jeikob Xaiver\Pruebas\archivo.txt",0
+    Arc_crlf       DB 13,10
+    Arc_buf        DB 41 dup(0)
+    Arc_id         DW 0
+    Arc_n          DW 0
+    Arc_OPC        DB 0

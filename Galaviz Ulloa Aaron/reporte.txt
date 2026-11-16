@@ -1,0 +1,25 @@
+********************************************
+*             Reporte de SCTA              *
+*   == Biblioteca Central - Ludoteca ==    *
+********************************************
+* =========== Datos del Operador ========= *
+* Nombre completo:                         *
+* Aaron Galaviz Ulloa                      *
+* ID:                                      *
+* 21400123                                 *
+* Zona y Turno:                            *
+* Ludoteca - Turno Manana (Admin)          *
+* ============ Lectura Termica =========== *
+* Temperatura Actual / Limite:             *
+* 29 C / 28 C                              *
+* Humedad Relativa / Maxima:               *
+* 65 % / 60 %                              *
+* ========== Estado de Actuadores ======== *
+* Ventilacion:                             *
+* ACTIVA (Modo Automatico)                 *
+* Persianas y Goteras:                     *
+* Persianas Cerradas - Sin Goteras         *
+* Fecha del reporte:                       *
+* 13 de Octubre del 2026                   *
+********************************************
+

@@ -1,0 +1,18 @@
+Nombre: Jeikob
+No. Control: 23400551
+Zona: 1
+Turno: 2
+Rol: 1
+--------------------
+Nombre: carlos
+No. Control: 23400526
+Zona: 1
+Turno: 1
+Rol: 1
+--------------------
+Nombre: 
+No. Control: 
+Zona: 
+Turno: 
+Rol: 
+--------------------
