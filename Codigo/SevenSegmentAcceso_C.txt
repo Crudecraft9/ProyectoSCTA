@@ -1,5 +1,4 @@
 ; Codigo pantalla Seven Segment
-; Muestra temperatura y humedad fijas con su estado. Una tecla regresa al menu
 
 PROC_SEVENSEG PROC
     CALL Sev_DIBUJA
@@ -8,7 +7,6 @@ PROC_SEVENSEG PROC
     RET
 PROC_SEVENSEG ENDP
 
-; Dibujar
 Sev_DIBUJA PROC
     CALL CLEAN_SCREEN
     IMPCAP_CONCOLOR Sev_ln00,79,0,0,0,0,2FH
@@ -32,7 +30,7 @@ Sev_DIBUJA PROC
     RET
 Sev_DIBUJA ENDP
 
-; Muestra los valores, el estado del sistema y manda la temperatura a los displays
+; Imprime los valores
 Sev_ACTUALIZA PROC
     ; 1. numeros en pantalla
     LEA DI,Sev_tTemp
@@ -44,7 +42,7 @@ Sev_ACTUALIZA PROC
     CALL UTIL_NUM2
     IMPCAP_CONCOLOR Sev_tHum,2,13,19,0,0,0EH
 
-    ; 2. temperatura: alta >= 28 , ideal 18 a 27 , baja < 18
+    ; temperatura: alta >= 28 , ideal 18 a 27 , baja < 18
     CMP Sev_temp,28
     JGE Sev_T1
     CMP Sev_temp,18
@@ -57,7 +55,7 @@ Sev_T1:
 Sev_T2:
     CALL Sev_TNORMAL
 
-    ; 3. humedad: alta >= 56 , ideal 45 a 55 , baja < 45
+    ; humedad: alta >= 56 , ideal 45 a 55 , baja < 45
 Sev_HUM:
     CMP Sev_hum,56
     JGE Sev_H1
@@ -67,15 +65,14 @@ Sev_HUM:
     IMPCAP_CONCOLOR Sev_vHBaja,16,16,60,0,0,0CH
     JMP Sev_DISPLAY
 Sev_H1:
-    IMPCAP_CONCOLOR Sev_vDesA,16,13,60,0,0,0CH      ; ALTA: deshumidificador
+    IMPCAP_CONCOLOR Sev_vDesA,16,13,60,0,0,0CH      ; ALTA
     IMPCAP_CONCOLOR Sev_vHAlta,16,16,60,0,0,0CH
     JMP Sev_DISPLAY
 Sev_H2:
     IMPCAP_CONCOLOR Sev_vInact,16,13,60,0,0,0AH     ; NORMAL
     IMPCAP_CONCOLOR Sev_vNorm,16,16,60,0,0,0AH
 
-    ; 4. enviar la temperatura a los displays 2030h (decenas) y 2031h (unidades)
-    ;    los digitos ya estan en Sev_tTemp como ASCII, se les resta '0'
+; enviar a los display
 Sev_DISPLAY:
     MOV BH,0
     MOV BL,Sev_tTemp
@@ -91,7 +88,7 @@ Sev_DISPLAY:
     RET
 Sev_ACTUALIZA ENDP
 
-Sev_TALTA PROC                  ; enfria y enciende extractor
+Sev_TALTA PROC                  
     IMPCAP_CONCOLOR Sev_vCliA,16,11,60,0,0,0CH
     IMPCAP_CONCOLOR Sev_vExtA,16,12,60,0,0,0CH
     IMPCAP_CONCOLOR Sev_vOff,16,14,60,0,0,0AH
@@ -107,7 +104,7 @@ Sev_TNORMAL PROC
     RET
 Sev_TNORMAL ENDP
 
-Sev_TBAJA PROC                  ; calefaccion encendida
+Sev_TBAJA PROC                  
     IMPCAP_CONCOLOR Sev_vInact,16,11,60,0,0,0AH
     IMPCAP_CONCOLOR Sev_vExtN,16,12,60,0,0,0AH
     IMPCAP_CONCOLOR Sev_vOn,16,14,60,0,0,0CH

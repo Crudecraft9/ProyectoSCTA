@@ -1,5 +1,4 @@
 ; Codigo pantalla Dot Matrix
-; Si la temperatura >= umbral se envia A, si no N. Una tecla regresa al menu
 
 PROC_DOTMATRIX PROC
     CALL Dot_DIBUJA
@@ -8,7 +7,6 @@ PROC_DOTMATRIX PROC
     RET
 PROC_DOTMATRIX ENDP
 
-; Dibujar
 Dot_DIBUJA PROC
     CALL CLEAN_SCREEN
     IMPCAP_CONCOLOR Dot_ln00,79,0,0,0,0,2FH
@@ -34,7 +32,7 @@ Dot_DIBUJA PROC
     RET
 Dot_DIBUJA ENDP
 
-; Muestra la temperatura, compara con el umbral y manda N o A al dot matrix
+; Muestra la temperatura, compara con el umbral y manda N o A
 Dot_ACTUALIZA PROC
     LEA DI,Dot_tTemp
     MOV AL,Dot_temp
@@ -56,7 +54,6 @@ Dot_ALERTA:
     RET
 Dot_ACTUALIZA ENDP
 
-; Manda las 5 columnas de la letra (SI) a los puertos 2000h a 2004h
 Dot_ENVIA PROC
     MOV DX,2000H
     MOV CX,5

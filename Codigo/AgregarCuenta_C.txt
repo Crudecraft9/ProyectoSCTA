@@ -1,21 +1,21 @@
 ; Codigo pantalla Agregar cuenta
-; Lee los 12 campos, revisa la contrasena y guarda en cuentas.txt
-; Si el estado es 1 (activa) tambien la agrega a operadores.txt
 
 PROC_AGREGARCUENTA PROC
 Agr_INICIO:
     CALL Agr_DIBUJA
     CALL Agr_CAPTURA
-    CMP Agr_nombre[1],0         ; nombre vacio = cancelar
+    CMP Agr_esc,1               
     JE Agr_SALIR
-    CMP Agr_clave[1],0          ; la contrasena no puede ir vacia
+    CMP Agr_nombre[1],0         
     JE Agr_VACIA
-    MOV AL,Agr_clave[1]         ; contrasena = confirmacion
+    CMP Agr_clave[1],0          
+    JE Agr_VACIA
+    MOV AL,Agr_clave[1]         
     CMP AL,Agr_conf[1]
     JE Agr_COMPARA
     JMP Agr_NOIGUAL
 Agr_COMPARA:
-    MOV CL,AL                   ; CX = cuantos caracteres comparar
+    MOV CL,AL                   
     MOV CH,0
     LEA SI,Agr_clave+2
     LEA DI,Agr_conf+2
@@ -109,7 +109,7 @@ Agr_ABIERTO:
     ESCRIBIR_ARCHIVO Agr_id,22,FDat_sepa
     CERRAR_ARCHIVO Agr_id
 
-    CMP Agr_estado[2],'1'       ; estado 1 = activa -> tambien es operador
+    CMP Agr_estado[2],'1'       
     JE Agr_ACTIVA
     JMP Agr_FIN
 Agr_ACTIVA:
@@ -120,7 +120,6 @@ Agr_FIN:
     RET
 PROC_AGREGARCUENTA ENDP
 
-; Dibuja el diseno fijo de la pantalla
 Agr_DIBUJA PROC
     CALL CLEAN_SCREEN
     IMPCAP_CONCOLOR Agr_ln00,79,0,0,0,0,2FH
@@ -145,36 +144,101 @@ Agr_DIBUJA PROC
     RET
 Agr_DIBUJA ENDP
 
-; Lee los 12 campos (cursor en el hueco de cada renglon)
 Agr_CAPTURA PROC
+    MOV Agr_esc,0
     CURSOR 12,11,0
-    LECTURA_CADENA Agr_nombre
+    LEA DI,Agr_nombre
+    CALL Agr_LEE
     CURSOR 13,14,0
-    LECTURA_CADENA Agr_apellidos
+    LEA DI,Agr_apellidos
+    CALL Agr_LEE
     CURSOR 14,7,0
-    LECTURA_CADENA Agr_ident
+    LEA DI,Agr_ident
+    CALL Agr_LEE
     CURSOR 15,11,0
-    LECTURA_CADENA Agr_correo
+    LEA DI,Agr_correo
+    CALL Agr_LEE
     CURSOR 16,13,0
-    LECTURA_CADENA Agr_telefono
+    LEA DI,Agr_telefono
+    CALL Agr_LEE
     CURSOR 17,29,0
-    LECTURA_CADENA Agr_turno
+    LEA DI,Agr_turno
+    CALL Agr_LEE
     CURSOR 12,51,0
-    LECTURA_CADENA Agr_usuario
+    LEA DI,Agr_usuario
+    CALL Agr_LEE
     CURSOR 13,54,0
-    LECTURA_CADENA Agr_clave
+    LEA DI,Agr_clave
+    CALL Agr_LEE
     CURSOR 14,64,0
-    LECTURA_CADENA Agr_conf
+    LEA DI,Agr_conf
+    CALL Agr_LEE
     CURSOR 15,67,0
-    LECTURA_CADENA Agr_rol
+    LEA DI,Agr_rol
+    CALL Agr_LEE
     CURSOR 16,69,0
-    LECTURA_CADENA Agr_estado
+    LEA DI,Agr_estado
+    CALL Agr_LEE
     CURSOR 17,68,0
-    LECTURA_CADENA Agr_zona
+    LEA DI,Agr_zona
+    CALL Agr_LEE
     RET
 Agr_CAPTURA ENDP
 
-; Agrega la cuenta activa a operadores.txt (usuario y contrasena para el login)
+Agr_LEE PROC
+    CMP Agr_esc,1
+    JE Agr_LEEESC
+    MOV BL,0                    
+    MOV SI,DI
+    INC SI
+    INC SI                      
+    MOV CL,[DI]
+    DEC CL                      
+Agr_LEE1:
+    CALL TECLA                  
+    CMP AL,27
+    JE Agr_LEEESC
+    CMP AL,13
+    JE Agr_LEEFIN
+    CMP AL,8
+    JE Agr_LEEBORRA
+    CMP AL,32
+    JGE Agr_LEECAR
+    JMP Agr_LEE1
+Agr_LEECAR:
+    CMP BL,CL                   
+    JGE Agr_LEE1
+    MOV [SI],AL
+    INC SI
+    INC BL
+    MOV DL,AL                   
+    MOV AH,2
+    INT 21H
+    JMP Agr_LEE1
+Agr_LEEBORRA:
+    CMP BL,0
+    JE Agr_LEE1
+    DEC SI
+    DEC BL
+    MOV DL,8                    
+    MOV AH,2
+    INT 21H
+    MOV DL,32
+    MOV AH,2
+    INT 21H
+    MOV DL,8
+    MOV AH,2
+    INT 21H
+    JMP Agr_LEE1
+Agr_LEEFIN:
+    INC DI
+    MOV [DI],BL                 
+    RET
+Agr_LEEESC:
+    MOV Agr_esc,1
+    RET
+Agr_LEE ENDP
+
 Agr_OPERADOR PROC
     LEA DX,FDat_rutaOper
     CALL UTIL_ABRIR_ANEXAR
