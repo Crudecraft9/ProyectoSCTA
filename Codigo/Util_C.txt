@@ -1,7 +1,8 @@
-; Utilerias compartidas 
 
 
 ; Captura una cadena con INT 16h (permite Esc, F2 y mascara de clave)
+; ENTRADA: DI=buffer  CL=maximo  DH=fila  DL=columna  BL=color
+; SALIDA : AL=0 Enter, AL=1 Esc, AL=2 F2 ; Util_len = cuantos se capturaron
 UTIL_LEER_CAMPO PROC
     MOV Util_fila,DH
     MOV Util_col0,DL
@@ -32,11 +33,11 @@ UL_CHAR:
     CMP AL,0E0H
     JE UL_LOOP
     CMP AL,32
-    JB UL_LOOP
+    JC UL_LOOP                 
     MOV CL,Util_len
     CMP CL,Util_max
-    JAE UL_LOOP
-    XOR BH,BH
+    JNC UL_LOOP                 
+    MOV BH,0                   
     MOV BL,Util_len
     MOV [DI+BX],AL
     CMP Util_mascara,1
@@ -76,30 +77,33 @@ UL_ESC:
 UL_F2:
     MOV AL,2
 UL_FIN:
-    XOR BH,BH
+    MOV BH,0                    
     MOV BL,Util_len
     MOV BYTE PTR [DI+BX],0
     RET
 UTIL_LEER_CAMPO ENDP
 
-; AL a minuscula si es A-Z
+
+; Convierte AL a minuscula si esta entre A y Z
 UTIL_MINUS PROC
     CMP AL,'A'
-    JB UM_FIN
-    CMP AL,'Z'
-    JA UM_FIN
+    JC UM_FIN                  
+    CMP AL,5BH                  
+    JNC UM_FIN
     ADD AL,20H
 UM_FIN:
     RET
 UTIL_MINUS ENDP
 
 
-; Compara cadena capturada (DI, CX caracteres) con el texto en SI.
-; Sin distinguir mayusculas. 
+; Compara la cadena de DI (CX caracteres) con el texto de SI,
+; sin distinguir mayusculas. Despues del texto solo admite espacios
+; y fin de linea.
+; SALIDA: CF=0 iguales ; CF=1 distintos
 UTIL_COMPARA PROC
-    PUSH SI
-    PUSH DI
-    PUSH CX
+    MOV Util_cSI,SI             
+    MOV Util_cDI,DI             
+    MOV Util_cCX,CX             
     CMP CX,0
     JE UC_NO
 UC_CIC:
@@ -127,30 +131,31 @@ UC_CHK:
     CMP AL,0
     JE UC_SI
 UC_NO:
-    POP CX
-    POP DI
-    POP SI
+    MOV SI,Util_cSI             
+    MOV DI,Util_cDI
+    MOV CX,Util_cCX
     STC
     RET
 UC_SI:
-    POP CX
-    POP DI
-    POP SI
+    MOV SI,Util_cSI
+    MOV DI,Util_cDI
+    MOV CX,Util_cCX
     CLC
     RET
 UTIL_COMPARA ENDP
 
 
-
+; Busca el texto de DI (CX caracteres) dentro del buffer que apunta SI.
+; SALIDA: CF=0 encontrado y SI queda DESPUES del texto ; CF=1 no esta
 UTIL_BUSCAR PROC
-    PUSH BX
-    PUSH DX
+    MOV Util_bBX,BX             
+    MOV Util_bDX,DX             
     MOV BX,CX
 UB_SIG:
     CMP BYTE PTR [SI],0
     JE UB_NO
-    PUSH SI
-    PUSH DI
+    MOV Util_bSI,SI             
+    MOV Util_bDI,DI             
     MOV CX,BX
 UB_CMP:
     MOV AL,[SI]
@@ -159,30 +164,30 @@ UB_CMP:
     INC SI
     INC DI
     LOOP UB_CMP
-    POP DI
-    POP AX
-    POP DX
-    POP BX
+    MOV DI,Util_bDI             
+    MOV DX,Util_bDX
+    MOV BX,Util_bBX
     CLC
     RET
 UB_DIF:
-    POP DI
-    POP SI
+    MOV DI,Util_bDI
+    MOV SI,Util_bSI
     INC SI
     JMP UB_SIG
 UB_NO:
-    POP DX
-    POP BX
+    MOV DX,Util_bDX
+    MOV BX,Util_bBX
     STC
     RET
 UTIL_BUSCAR ENDP
 
+
 ; Igual que UTIL_BUSCAR pero deja SI despues de la ULTIMA aparicion
 UTIL_ULTIMO PROC
-    PUSH BX
-    PUSH DX
+    MOV Util_uBX,BX             
+    MOV Util_uDX,DX            
     MOV DX,CX
-    XOR BX,BX
+    MOV BX,0                    
 UU_SIG:
     MOV CX,DX
     CALL UTIL_BUSCAR
@@ -193,19 +198,19 @@ UU_FIN:
     CMP BX,0
     JE UU_NO
     MOV SI,BX
-    POP DX
-    POP BX
+    MOV DX,Util_uDX
+    MOV BX,Util_uBX
     CLC
     RET
 UU_NO:
-    POP DX
-    POP BX
+    MOV DX,Util_uDX
+    MOV BX,Util_uBX
     STC
     RET
 UTIL_ULTIMO ENDP
 
 
-; Carga un archivo completo en Util_buf y pone 0 al final
+; Carga un archivo completo en Util_buf y le pone un 0 al final
 ; ENTRADA: DX=ruta ASCIIZ.  SALIDA: CF=1 error ; AX=bytes leidos
 UTIL_CARGAR PROC
     MOV AX,3D00H
@@ -217,13 +222,12 @@ UTIL_CARGAR PROC
     LEA DX,Util_buf
     INT 21H
     JC UCG_CERR
-    PUSH AX
+    MOV Util_gAX,AX             
     MOV AH,3EH
     INT 21H
-    POP AX
-    LEA BX,Util_buf
-    ADD BX,AX
-    MOV BYTE PTR [BX],0
+    MOV AX,Util_gAX             
+    MOV BX,AX
+    MOV Util_buf[BX],0         
     CLC
     RET
 UCG_CERR:
@@ -236,78 +240,98 @@ UTIL_CARGAR ENDP
 
 
 ; Abre un archivo SIN borrarlo (lo crea si no existe) y se coloca al final
-; ENTRADA: DX=ruta.  SALIDA: AX=handle ; CF=1 error
+; ENTRADA: DX=ruta.  SALIDA: AX=identificador ; CF=1 error
 UTIL_ABRIR_ANEXAR PROC
-    MOV AX,3D02H                ; abrir lectura y escritura
+    MOV AX,3D02H               
     INT 21H
     JNC UAA_SEEK
-    MOV AH,3CH                  ; no existe: crearlo (DX sigue con la ruta)
+    MOV AH,3CH                  
     MOV CX,0
     INT 21H
     JC UAA_ERR
 UAA_SEEK:
     MOV BX,AX
-    MOV AX,4202H                ; ir al final del archivo
+    MOV AX,4202H                
     MOV CX,0
     MOV DX,0
     INT 21H
     JC UAA_ERR
-    MOV AX,BX                   ; AX = handle (CF = 0)
+    MOV AX,BX                   
 UAA_ERR:
-    RET                         ; si hubo error, CF ya vale 1
+    RET                        
 UTIL_ABRIR_ANEXAR ENDP
 
 
 ; Escribe en un archivo SOLO los caracteres capturados de un buffer
-; de INT 21h/0Ah 
+; de INT 21h/0Ah.  ENTRADA: BX=identificador  DX=buffer
 UTIL_ESC_BUF PROC
-    PUSH SI
+    MOV Util_eSI,SI             
     MOV SI,DX
-    XOR CH,CH
-    MOV CL,[SI+1]
-    ADD DX,2
+    MOV CH,0                    
+    MOV CL,[SI+1]               
+    INC DX                      
+    INC DX
     CMP CX,0
     JE UEB_FIN
     MOV AH,40H
     INT 21H
 UEB_FIN:
-    POP SI
+    MOV SI,Util_eSI             
     RET
 UTIL_ESC_BUF ENDP
 
+
 ; AL (0-255) -> digitos ASCII sin ceros a la izquierda en [DI]; DI avanza
+; Separa centenas, decenas y unidades restando, igual que Sev_RESTA.
 UTIL_NUM PROC
-    PUSH AX
-    PUSH BX
-    PUSH CX
-    XOR CX,CX
-    MOV BL,10
-UN_DIV:
-    XOR AH,AH
-    DIV BL
-    PUSH AX
-    INC CX
-    CMP AL,0
-    JNE UN_DIV
-UN_SAC:
-    POP AX
-    MOV AL,AH
+    MOV Util_nAX,AX           
+    MOV Util_cen,0
+    MOV Util_dec,0
+UN_CEN:
+    CMP AL,100
+    JC UN_DEC
+    SUB AL,100
+    INC Util_cen
+    JMP UN_CEN
+UN_DEC:
+    CMP AL,10
+    JC UN_UNI
+    SUB AL,10
+    INC Util_dec
+    JMP UN_DEC
+UN_UNI:
+    ADD AL,'0'
+    MOV Util_uni,AL
+    CMP Util_cen,0           
+    JE UN_SOLODEC
+    MOV AL,Util_cen
     ADD AL,'0'
     MOV [DI],AL
     INC DI
-    LOOP UN_SAC
-    POP CX
-    POP BX
-    POP AX
+    JMP UN_PONDEC
+UN_SOLODEC:
+    CMP Util_dec,0            
+    JE UN_PONUNI
+UN_PONDEC:
+    MOV AL,Util_dec
+    ADD AL,'0'
+    MOV [DI],AL
+    INC DI
+UN_PONUNI:
+    MOV AL,Util_uni
+    MOV [DI],AL
+    INC DI
+    MOV AX,Util_nAX
     RET
 UTIL_NUM ENDP
 
+
 ; AL (0-99) -> dos digitos ASCII en [DI]; DI avanza 2 (AX se pierde)
 UTIL_NUM2 PROC
-    MOV AH,0                    ; AH = decenas
+    MOV AH,0                 
 UN2_RESTA:
     CMP AL,10
-    JL UN2_FIN
+    JC UN2_FIN               
     SUB AL,10
     INC AH
     JMP UN2_RESTA
@@ -316,16 +340,19 @@ UN2_FIN:
     ADD AL,'0'
     MOV [DI],AH
     MOV [DI+1],AL
-    ADD DI,2
+    INC DI                  
+    INC DI
     RET
 UTIL_NUM2 ENDP
 
-; Lee un numero decimal en [SI] (salta espacios). SALIDA: AL=valor, CF=1 si no hay digitos
+
+; Lee un numero decimal en [SI] (salta espacios).
+; SALIDA: AL=valor, CF=1 si no habia ningun digito
 UTIL_PARSE PROC
-    PUSH BX
-    PUSH CX
-    PUSH DX
-    XOR BX,BX
+    MOV Util_pBX,BX        
+    MOV Util_pCX,CX
+    MOV Util_pDX,DX
+    MOV BX,0                  
 UP_ESP:
     CMP BYTE PTR [SI],' '
     JNE UP_DIG
@@ -334,14 +361,17 @@ UP_ESP:
 UP_DIG:
     MOV AL,[SI]
     CMP AL,'0'
-    JB UP_FIN
-    CMP AL,'9'
-    JA UP_FIN
+    JC UP_FIN                  
+    CMP AL,3AH              
+    JNC UP_FIN
     SUB AL,'0'
-    MOV DL,AL
-    MOV AL,BL
-    MOV CL,10
-    MUL CL
+    MOV DL,AL                
+    MOV Util_pTmp,BL         
+    MOV AL,0
+    MOV CX,10
+UP_POR10:
+    ADD AL,Util_pTmp          
+    LOOP UP_POR10
     ADD AL,DL
     MOV BL,AL
     INC BH
@@ -349,23 +379,29 @@ UP_DIG:
     JMP UP_DIG
 UP_FIN:
     MOV AL,BL
-    CMP BH,1
-    POP DX
-    POP CX
-    POP BX
+    CMP BH,1                   
+    MOV DX,Util_pDX            
+    MOV CX,Util_pCX
+    MOV BX,Util_pBX
     RET
 UTIL_PARSE ENDP
 
-; Llena con espacios CX bytes desde DI 
+
+; Llena con espacios CX bytes a partir de DI
 UTIL_ESPACIOS PROC
-    PUSH AX
-    PUSH CX
-    PUSH DI
+    MOV Util_sAX,AX          
+    MOV Util_sCX,CX
+    MOV Util_sDI,DI
+    CMP CX,0
+    JE US_FIN
     MOV AL,' '
-    CLD
-    REP STOSB
-    POP DI
-    POP CX
-    POP AX
+US_CIC:
+    MOV [DI],AL           
+    INC DI
+    LOOP US_CIC
+US_FIN:
+    MOV DI,Util_sDI
+    MOV CX,Util_sCX
+    MOV AX,Util_sAX
     RET
 UTIL_ESPACIOS ENDP

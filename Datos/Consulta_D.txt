@@ -23,7 +23,7 @@
     Con_msjTec     DB "[+] Subir temp.   [-] Bajar temp.   [ESC] Volver al menu"
 
     ; Valores dinamicos (se arman en tiempo de ejecucion)
-    Con_tTemp      DB 6 dup(' ')
+    Con_tTemp      DB 14 dup(' ')   ; "120 C / 248 F" = 13 en el peor caso
     Con_tUmb       DB 6 dup(' ')
     Con_tZona      DB 8 dup(' ')
     Con_tFecha     DB 10 dup(' ')
@@ -35,8 +35,17 @@
     Con_lcdN       DB "Estado normal   "
     Con_lcdA       DB "Estado Alerta   "
     Con_lcdU       DB " C U="
-    Con_temp       DB 22        ; lectura simulada (+ / - la modifican)
+    Con_temp       DB 22        ; grados C leidos del Thermometer (puerto 2086h)
     Con_umbral     DB 28        ; se sobrescribe con configuracion.txt
     Con_ventMod    DB '1'       ; 1=Auto 2=On (de configuracion.txt)
     Con_alerta     DB 0
     Con_vent       DB 0
+
+    ; Termometro del Emulation Kit y calculos (MUL DIV ADD SUB)
+    Con_msjTerm    DB "Termometro en 2086h  [cualquier tecla] Leer  [ESC] Menu" ;55
+    Con_fahr       DB 0                ; temperatura convertida a Fahrenheit
+    Con_raw        DB 0                ; ultimo byte leido del puerto
+    Con_tRaw       DB 4 dup(' ')
+    Con_lblRaw     DB "Valor crudo del puerto 2086h: " ;30
+    Con_lblMar     DB "Diferencia con el umbral: "     ;26
+    Con_tMar       DB 6 dup(' ')

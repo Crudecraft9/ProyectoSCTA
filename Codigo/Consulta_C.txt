@@ -30,33 +30,18 @@ PROC_CONSULTA PROC
     IMPCAP_CONCOLOR Con_fLcd,36,17,41,0,0,0AH
     IMPCAP_CONCOLOR Con_bBot,36,18,41,0,0,0AH
     IMPCAP_CONCOLOR Con_tLcd,13,17,57,0,0,0EH
-    IMPCAP_CONCOLOR Con_msjTec,56,21,3,0,0,0EH
+    IMPCAP_CONCOLOR Con_msjTerm,55,21,3,0,0,0EH
     IMPCAP_CONCOLOR Util_marco,80,23,0,0,0,0AH
     IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
-    CALL CON_ACTUALIZA
+Con_LEER:
+    CALL CON_LEE_TERMOMETRO     ; Con_temp <- puerto 2086h
+    CALL CON_ACTUALIZA          ; textos, estado, ventilacion, LCD y diferencia
+    CALL CON_MUESTRA_RAW        ; diagnostico: byte crudo del puerto
 Con_ESPERA:
     CALL TECLA
     CMP AL,27
     JE Con_SALIR
-    CMP AL,'+'
-    JE Con_SUBE
-    CMP AL,'='
-    JE Con_SUBE
-    CMP AL,'-'
-    JE Con_BAJA
-    JMP Con_ESPERA
-Con_SUBE:
-    CMP Con_temp,120
-    JAE Con_ESPERA
-    INC Con_temp
-    CALL CON_ACTUALIZA
-    JMP Con_ESPERA
-Con_BAJA:
-    CMP Con_temp,0
-    JE Con_ESPERA
-    DEC Con_temp
-    CALL CON_ACTUALIZA
-    JMP Con_ESPERA
+    JMP Con_LEER                ; cualquier otra tecla vuelve a leer
 Con_SALIR:
     RET
 PROC_CONSULTA ENDP
@@ -122,13 +107,23 @@ CON_CARGAR ENDP
 ; Arma los textos, decide estado, actualiza pantalla y LCD
 CON_ACTUALIZA PROC
     CLD
+    ; temperatura: "29 C / 84 F"
     LEA DI,Con_tTemp
-    MOV CX,6
+    MOV CX,14
     CALL UTIL_ESPACIOS
     MOV AL,Con_temp
     CALL UTIL_NUM
     MOV BYTE PTR [DI],' '
     MOV BYTE PTR [DI+1],'C'
+    MOV BYTE PTR [DI+2],' '
+    MOV BYTE PTR [DI+3],'/'
+    MOV BYTE PTR [DI+4],' '
+    ADD DI,5
+    CALL CON_A_FAHRENHEIT       ; Con_fahr = Con_temp * 9 / 5 + 32
+    MOV AL,Con_fahr
+    CALL UTIL_NUM
+    MOV BYTE PTR [DI],' '
+    MOV BYTE PTR [DI+1],'F'
     LEA DI,Con_tUmb
     MOV CX,6
     CALL UTIL_ESPACIOS
@@ -148,7 +143,7 @@ CON_ACTUALIZA PROC
     LEA SI,Con_sufReg
     MOV CX,11
     REP MOVSB
-    IMPCAP_CONCOLOR Con_tTemp,6,11,19,0,0,0EH
+    IMPCAP_CONCOLOR Con_tTemp,14,11,19,0,0,0EH
     IMPCAP_CONCOLOR Con_tUmb,6,13,19,0,0,0EH
     IMPCAP_CONCOLOR Con_tZona,8,15,19,0,0,0EH
     IMPCAP_CONCOLOR Con_tFecha,10,17,19,0,0,0EH
@@ -194,6 +189,7 @@ CON_SINAV:
 CON_CONAV:
     IMPCAP_CONCOLOR Con_avA,52,20,3,0,0,0CH
 CON_FIN:
+    CALL CON_MARGEN             ; fila 19: diferencia con el umbral
     RET
 CON_ACTUALIZA ENDP
 
@@ -235,3 +231,75 @@ CON_LS:
     LOOP CON_LS
     RET
 CON_ENVIA_LCD ENDP
+
+; Lee el Thermometer del Emulation Kit (puerto 2086h)
+; Se asume que el puerto entrega los grados directos como byte con signo
+; (-40 a +120). Si Con_raw no coincide con el dispositivo, se ajusta aqui.
+CON_LEE_TERMOMETRO PROC
+    MOV DX,2086H
+    IN AL,DX
+    MOV Con_raw,AL              ; byte crudo, sirve para calibrar
+    CMP AL,128
+    JC CT_POS                   ; menor a 128 = temperatura positiva
+    MOV AL,0                    ; bajo cero: se muestra como 0
+    JMP CT_GUARDA
+CT_POS:
+    CMP AL,121
+    JC CT_GUARDA                ; 120 o menos pasa tal cual
+    MOV AL,120                  ; tope de la escala
+CT_GUARDA:
+    MOV Con_temp,AL
+    RET
+CON_LEE_TERMOMETRO ENDP
+
+; Convierte Celsius a Fahrenheit:  F = C * 9 / 5 + 32
+; Usa MUL, DIV y ADD. Maximo: 120 C -> 1080 -> 216 -> 248 F (cabe en un byte)
+CON_A_FAHRENHEIT PROC
+    MOV AL,Con_temp
+    MOV BL,9
+    MUL BL                      ; AX = C * 9  (MUL de 8 bits deja AL*BL en AX)
+    MOV BL,5
+    DIV BL                      ; AL = cociente, AH = residuo
+    ADD AL,32
+    MOV Con_fahr,AL
+    RET
+CON_A_FAHRENHEIT ENDP
+
+; Diferencia entre la temperatura y el umbral. Usa SUB.
+; Pone el signo + si esta por encima del umbral, - si esta por debajo.
+CON_MARGEN PROC
+    LEA DI,Con_tMar
+    MOV CX,6
+    CALL UTIL_ESPACIOS
+    MOV AL,Con_temp
+    CMP AL,Con_umbral
+    JC CM_BAJO
+    SUB AL,Con_umbral           ; temperatura >= umbral
+    MOV BYTE PTR [DI],'+'
+    JMP CM_PON
+CM_BAJO:
+    MOV AL,Con_umbral
+    SUB AL,Con_temp             ; umbral > temperatura
+    MOV BYTE PTR [DI],'-'
+CM_PON:
+    INC DI
+    CALL UTIL_NUM
+    MOV BYTE PTR [DI],' '
+    MOV BYTE PTR [DI+1],'C'
+    IMPCAP_CONCOLOR Con_lblMar,26,19,3,0,0,0AH
+    IMPCAP_CONCOLOR Con_tMar,6,19,29,0,0,0EH
+    RET
+CON_MARGEN ENDP
+
+; Muestra el byte crudo del puerto 2086h (diagnostico, gris oscuro).
+; Una vez confirmada la conversion se puede quitar.
+CON_MUESTRA_RAW PROC
+    LEA DI,Con_tRaw
+    MOV CX,4
+    CALL UTIL_ESPACIOS
+    MOV AL,Con_raw
+    CALL UTIL_NUM
+    IMPCAP_CONCOLOR Con_lblRaw,30,22,3,0,0,08H
+    IMPCAP_CONCOLOR Con_tRaw,4,22,33,0,0,08H
+    RET
+CON_MUESTRA_RAW ENDP

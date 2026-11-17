@@ -19,3 +19,31 @@
     ; Datos del operador que inicio sesion
     Ses_zona       DB '1'
     Ses_rol        DB '2'
+
+    ; ---- Variables que sustituyen a PUSH/POP ----
+    ; Cada procedimiento tiene las suyas para que no se pisen entre si
+    ; cuando uno llama a otro (UTIL_ULTIMO llama a UTIL_BUSCAR).
+    Util_cSI       DW 0        ; UTIL_COMPARA
+    Util_cDI       DW 0
+    Util_cCX       DW 0
+    Util_bBX       DW 0        ; UTIL_BUSCAR
+    Util_bDX       DW 0
+    Util_bSI       DW 0
+    Util_bDI       DW 0
+    Util_uBX       DW 0        ; UTIL_ULTIMO
+    Util_uDX       DW 0
+    Util_gAX       DW 0        ; UTIL_CARGAR
+    Util_eSI       DW 0        ; UTIL_ESC_BUF
+    Util_nAX       DW 0        ; UTIL_NUM
+    Util_pBX       DW 0        ; UTIL_PARSE
+    Util_pCX       DW 0
+    Util_pDX       DW 0
+    Util_pTmp      DB 0
+    Util_sAX       DW 0        ; UTIL_ESPACIOS
+    Util_sCX       DW 0
+    Util_sDI       DW 0
+
+    ; ---- Cifras que usa UTIL_NUM en lugar de DIV ----
+    Util_cen       DB 0
+    Util_dec       DB 0
+    Util_uni       DB 0

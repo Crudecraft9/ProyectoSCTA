@@ -14,9 +14,9 @@
     Sev_ln12    DB ' | Rango ideal:  18 a 27 C            | | Extractor aire:                    | '
     Sev_ln13    DB ' | Humedad:      [    ] %             | | Deshumidificador:                  | '
     Sev_ln14    DB ' | Rango ideal:  45 a 55 %            | | Calefaccion:                       | '
-    Sev_ln15    DB ' |                                    | | Alerta temp.:                      | '
+    Sev_ln15    DB ' | Prom. dia:    [    ] C             | | Alerta temp.:                      | '
     Sev_ln16    DB ' | Puertos 7seg: 2030h y 2031h        | | Alerta humedad:                    | '
-    Sev_ln17    DB ' |                                    | |                                    | '
+    Sev_ln17    DB ' | Variacion:    [    ] C             | | Lecturas semana:                   | '
     Sev_ln18    DB ' -------------------------------------- -------------------------------------- '
 
     ; --- Textos que cambian segun la lectura (ancho fijo = 16) ---
@@ -34,6 +34,9 @@
     Sev_vHBaja   DB 'BAJA (<45 %)    '
     Sev_tTemp      DB 2 dup(' ')      ; digitos de temperatura dentro de [ ]
     Sev_tHum       DB 2 dup(' ')      ; digitos de humedad dentro de [ ]
+    Sev_tProm      DB 2 dup(' ')      ; digitos del promedio del dia
+    Sev_tVar       DB 2 dup(' ')      ; digitos de la variacion
+    Sev_tLec       DB 2 dup(' ')      ; digitos de lecturas por semana
     Sev_msjTec     DB 'Pulsa una tecla para volver al menu' ;35
 
     ; --- Datos del device (a-b-c-d-e-f-g, bit0 = a ... bit6 = g) ---
@@ -51,3 +54,5 @@
     ; --- Lectura simulada (valores fijos) ---
     Sev_temp       DB 28
     Sev_hum        DB 50
+    Sev_tMan       DB 20              ; temperatura de la manana
+    Sev_tTar       DB 30              ; temperatura de la tarde

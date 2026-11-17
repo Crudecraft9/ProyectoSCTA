@@ -284,16 +284,16 @@ CLEAN_SCREEN PROC
 CLEAN_SCREEN ENDP
 
 ; ---- Procedimientos ----  
+    INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Util_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Acerca_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\FormDatos_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Reportes_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Carpetas_C.txt
-    INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Util_C.txt
+    INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\AgregarCuenta_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Login_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Consulta_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\Archivos_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\SevenSegmentAcceso_C.txt
     INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\DotMatrixAccess_C.txt
-    INCLUDE C:\emu8086\vdrive\C\ProyectoSCTA\Codigo\AgregarCuenta_C.txt
 
 END inicio

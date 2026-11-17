@@ -41,6 +41,7 @@ Sev_ACTUALIZA PROC
     MOV AL,Sev_hum
     CALL UTIL_NUM2
     IMPCAP_CONCOLOR Sev_tHum,2,13,19,0,0,0EH
+    CALL Sev_PROMEDIO           ; calculos con ADD, DIV, SUB y MUL
 
     ; temperatura: alta >= 28 , ideal 18 a 27 , baja < 18
     CMP Sev_temp,28
@@ -87,6 +88,36 @@ Sev_DISPLAY:
     OUT DX,AL
     RET
 Sev_ACTUALIZA ENDP
+
+; Calculos del dia con las 2 lecturas (manana y tarde)
+Sev_PROMEDIO PROC
+    ; 01. PROMEDIO = (manana + tarde) / 2
+    xor ax,ax                   ; inicializar a cero
+    mov al,Sev_tMan
+    add al,Sev_tTar             ; ADD: AL = 20 + 30 = 50
+    mov bl,2
+    div bl                      ; DIV: AL = 50 / 2 = 25
+    LEA DI,Sev_tProm
+    CALL UTIL_NUM2
+    IMPCAP_CONCOLOR Sev_tProm,2,15,19,0,0,0EH
+
+    ; 02. VARIACION = tarde - manana
+    mov al,Sev_tTar
+    sub al,Sev_tMan             ; SUB: AL = 30 - 20 = 10
+    LEA DI,Sev_tVar
+    CALL UTIL_NUM2
+    IMPCAP_CONCOLOR Sev_tVar,2,17,19,0,0,0EH
+
+    ; 03. LECTURAS POR SEMANA = 2 x 7
+    xor ax,ax
+    mov al,2
+    mov cl,7
+    mul cl                      ; MUL: AL = 2 x 7 = 14
+    LEA DI,Sev_tLec
+    CALL UTIL_NUM2
+    IMPCAP_CONCOLOR Sev_tLec,2,17,60,0,0,0EH
+    RET
+Sev_PROMEDIO ENDP
 
 Sev_TALTA PROC                  
     IMPCAP_CONCOLOR Sev_vCliA,16,11,60,0,0,0CH
