@@ -76,14 +76,14 @@ Sev_ACTUALIZA PROC
     CMP Sev_temp,18
     JGE Sev_T2
     CALL Sev_TBAJA
-    JMP Sev_HUM
+    JMP Sev_HUMEDAD
 Sev_T1:
     CALL Sev_TALTA
-    JMP Sev_HUM
+    JMP Sev_HUMEDAD
 Sev_T2:
     CALL Sev_TNORMAL
 
-Sev_HUM:
+Sev_HUMEDAD:
     CMP Sev_hum,56
     JGE Sev_H1
     CMP Sev_hum,45
