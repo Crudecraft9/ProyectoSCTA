@@ -32,7 +32,6 @@ Dot_DIBUJA PROC
     RET
 Dot_DIBUJA ENDP
 
-; Muestra la temperatura, compara con el umbral y manda N o A
 Dot_ACTUALIZA PROC
     LEA DI,Dot_tTemp
     MOV AL,Dot_temp
@@ -43,14 +42,20 @@ Dot_ACTUALIZA PROC
     MOV AL,Dot_temp
     CMP AL,Dot_umbral
     JGE Dot_ALERTA
-    LEA SI,Dot_letraN           ; temp < umbral = NORMAL
+    LEA SI,Dot_letraN
     CALL Dot_ENVIA
     IMPCAP_CONCOLOR Dot_resN,10,19,60,0,0,0AH
+    mov dx,4
+    mov ax,0000100100100100B
+    out dx,ax
     RET
 Dot_ALERTA:
-    LEA SI,Dot_letraA           ; temp >= umbral = ALERTA
+    LEA SI,Dot_letraA
     CALL Dot_ENVIA
     IMPCAP_CONCOLOR Dot_resA,10,19,60,0,0,0CH
+    mov dx,4
+    mov ax,0000001001001001B
+    out dx,ax
     RET
 Dot_ACTUALIZA ENDP
 

@@ -4,6 +4,15 @@
 ; Cortes Hidalgo Carlos David - 5A
 ;
 ; GUARDAR COMO: SCTA.asm   (todos los .txt en la MISMA carpeta)
+;
+; DISPOSITIVOS (emu8086 los abre al ver su nombre en un comentario):
+;   Printer.exe        -> Reportes      (INT 21h AH=5)
+;   Thermometer.exe    -> Seven Segment (puerto 127, calefaccion)
+;   Stepper_motor.exe  -> Seven Segment (puerto 7, extractor)
+;   Traffic_Lights.exe -> Dot Matrix    (puerto 4, verde/rojo)
+;   LED_Display.exe    -> Consulta      (puerto 199, temperatura)
+;   Robot.exe          -> Consulta      (puertos 9 y 11, lampara)
+;   Emulation Kit.exe  -> Dot Matrix, Seven Segment, LCD y termometro 2086h
 ;**************************************************************
 
 INCLUDE BIBLIOTECA.txt        ; SOLO macros (no generan bytes, pueden ir arriba)

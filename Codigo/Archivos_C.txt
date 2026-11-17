@@ -1,4 +1,4 @@
-; Codigo pantalla Archivos (crear carpeta / crear / escribir / leer)
+; Codigo pantalla Archivos 
 
 PROC_ARCHIVOS PROC
 Arc_PANTALLA:
@@ -27,7 +27,7 @@ Arc_TECLA:
     MOV Arc_OPC,AL
     CMP Arc_OPC,'5'
     JNE Arc_N5
-    RET                         ; volver al menu principal
+    RET
 Arc_N5:
     CMP Arc_OPC,'1'
     JNE Arc_N1
@@ -49,11 +49,10 @@ Arc_N3:
     CALL ARC_OP_LEER
     CMP AL,0
     JNE Arc_RESULTADO
-    JMP Arc_PANTALLA            ; tras leer se redibuja el menu
+    JMP Arc_PANTALLA
 Arc_N4:
     JMP Arc_TECLA
 
-; AL: 0=exito 1=error 2=cancelado
 Arc_RESULTADO:
     CMP AL,0
     JNE Arc_R1
@@ -75,7 +74,6 @@ Arc_ERR:
     JMP Arc_TECLA
 PROC_ARCHIVOS ENDP
 
-; ---- Operaciones: devuelven AL=0 exito, 1 error, 2 cancelado ----
 ARC_OP_CARPETA PROC
     MOV AH,39H
     LEA DX,Arc_rutaCarp

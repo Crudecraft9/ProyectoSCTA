@@ -1,8 +1,6 @@
+; Utilerias compartidas
 
 
-; Captura una cadena con INT 16h (permite Esc, F2 y mascara de clave)
-; ENTRADA: DI=buffer  CL=maximo  DH=fila  DL=columna  BL=color
-; SALIDA : AL=0 Enter, AL=1 Esc, AL=2 F2 ; Util_len = cuantos se capturaron
 UTIL_LEER_CAMPO PROC
     MOV Util_fila,DH
     MOV Util_col0,DL
@@ -84,7 +82,6 @@ UL_FIN:
 UTIL_LEER_CAMPO ENDP
 
 
-; Convierte AL a minuscula si esta entre A y Z
 UTIL_MINUS PROC
     CMP AL,'A'
     JC UM_FIN                  
@@ -96,10 +93,6 @@ UM_FIN:
 UTIL_MINUS ENDP
 
 
-; Compara la cadena de DI (CX caracteres) con el texto de SI,
-; sin distinguir mayusculas. Despues del texto solo admite espacios
-; y fin de linea.
-; SALIDA: CF=0 iguales ; CF=1 distintos
 UTIL_COMPARA PROC
     MOV Util_cSI,SI             
     MOV Util_cDI,DI             
@@ -145,8 +138,6 @@ UC_SI:
 UTIL_COMPARA ENDP
 
 
-; Busca el texto de DI (CX caracteres) dentro del buffer que apunta SI.
-; SALIDA: CF=0 encontrado y SI queda DESPUES del texto ; CF=1 no esta
 UTIL_BUSCAR PROC
     MOV Util_bBX,BX             
     MOV Util_bDX,DX             
@@ -182,7 +173,6 @@ UB_NO:
 UTIL_BUSCAR ENDP
 
 
-; Igual que UTIL_BUSCAR pero deja SI despues de la ULTIMA aparicion
 UTIL_ULTIMO PROC
     MOV Util_uBX,BX             
     MOV Util_uDX,DX            
@@ -210,8 +200,6 @@ UU_NO:
 UTIL_ULTIMO ENDP
 
 
-; Carga un archivo completo en Util_buf y le pone un 0 al final
-; ENTRADA: DX=ruta ASCIIZ.  SALIDA: CF=1 error ; AX=bytes leidos
 UTIL_CARGAR PROC
     MOV AX,3D00H
     INT 21H
@@ -239,8 +227,6 @@ UCG_ERR:
 UTIL_CARGAR ENDP
 
 
-; Abre un archivo SIN borrarlo (lo crea si no existe) y se coloca al final
-; ENTRADA: DX=ruta.  SALIDA: AX=identificador ; CF=1 error
 UTIL_ABRIR_ANEXAR PROC
     MOV AX,3D02H               
     INT 21H
@@ -262,8 +248,6 @@ UAA_ERR:
 UTIL_ABRIR_ANEXAR ENDP
 
 
-; Escribe en un archivo SOLO los caracteres capturados de un buffer
-; de INT 21h/0Ah.  ENTRADA: BX=identificador  DX=buffer
 UTIL_ESC_BUF PROC
     MOV Util_eSI,SI             
     MOV SI,DX
@@ -281,8 +265,6 @@ UEB_FIN:
 UTIL_ESC_BUF ENDP
 
 
-; AL (0-255) -> digitos ASCII sin ceros a la izquierda en [DI]; DI avanza
-; Separa centenas, decenas y unidades restando, igual que Sev_RESTA.
 UTIL_NUM PROC
     MOV Util_nAX,AX           
     MOV Util_cen,0
@@ -326,7 +308,6 @@ UN_PONUNI:
 UTIL_NUM ENDP
 
 
-; AL (0-99) -> dos digitos ASCII en [DI]; DI avanza 2 (AX se pierde)
 UTIL_NUM2 PROC
     MOV AH,0                 
 UN2_RESTA:
@@ -346,8 +327,6 @@ UN2_FIN:
 UTIL_NUM2 ENDP
 
 
-; Lee un numero decimal en [SI] (salta espacios).
-; SALIDA: AL=valor, CF=1 si no habia ningun digito
 UTIL_PARSE PROC
     MOV Util_pBX,BX        
     MOV Util_pCX,CX
@@ -387,7 +366,6 @@ UP_FIN:
 UTIL_PARSE ENDP
 
 
-; Llena con espacios CX bytes a partir de DI
 UTIL_ESPACIOS PROC
     MOV Util_sAX,AX          
     MOV Util_sCX,CX

@@ -1,6 +1,4 @@
 ; Codigo pantalla Formulario
-; Abre sin borrar (anexa), guarda solo los caracteres capturados,
-; y usa saltos largos seguros (JNE + JMP) para evitar "jump out of range".
 
 PROC_FORMDATOS PROC
     MOV FDat_idOper,0
@@ -26,17 +24,14 @@ FDat_PANTALLA:
     IMPCAP_CONCOLOR FDat_logo4,11,4,1,0,0,0AH
     IMPCAP_CONCOLOR FDat_logo5,11,5,1,0,0,0AH
 
-    ; 3. Imprimir titulo
     IMPCAP_CONCOLOR FDat_titulo1,64,1,13,0,0,0AH
     IMPCAP_CONCOLOR FDat_titulo2,64,2,13,0,0,0AH
     IMPCAP_CONCOLOR FDat_titulo3,64,3,13,0,0,0AH
     IMPCAP_CONCOLOR FDat_titulo4,64,4,13,0,0,0AH
     IMPCAP_CONCOLOR FDat_titulo5,64,5,13,0,0,0AH
 
-    ; 1. Instrucciones
     IMPCAP_CONCOLOR FDat_msjInst,50,7,15,0,0,0EH
 
-    ; 2. Info Personal
     IMPCAP_CONCOLOR FDat_msjDP1,38,9,1,0,0,0EH
     IMPCAP_CONCOLOR FDat_msjDP2,38,10,1,0,0,0AH
     IMPCAP_CONCOLOR FDat_msjDP3,38,11,1,0,0,0AH
@@ -51,7 +46,6 @@ FDat_PANTALLA:
     IMPCAP_CONCOLOR FDat_msjDP12,38,20,1,0,0,0BH
     IMPCAP_CONCOLOR FDat_msjDP13,38,21,1,0,0,0AH
 
-    ; 3. Config Sistema
     IMPCAP_CONCOLOR FDat_msjCF1,38,9,41,0,0,0EH
     IMPCAP_CONCOLOR FDat_msjCF2,38,10,41,0,0,0AH
     IMPCAP_CONCOLOR FDat_msjCF3,38,11,41,0,0,0AH
@@ -66,13 +60,11 @@ FDat_PANTALLA:
     IMPCAP_CONCOLOR FDat_msjCF12,38,20,41,0,0,0BH
     IMPCAP_CONCOLOR FDat_msjCF13,38,21,41,0,0,0AH
 
-    ; 4. Pie de pagina
     IMPCAP_CONCOLOR FDat_msjPie,80,24,0,0,0,2FH
 
 FDat_CAPTURA:
-    CALL PROC_FDat_LIMPIAR              ;Limpiar buffers 
+    CALL PROC_FDat_LIMPIAR
 
-    ;Datos Operador
     CURSOR 10,11,0
     LECTURA_CADENA FDat_nombre
     CURSOR 12,16,0
@@ -84,7 +76,6 @@ FDat_CAPTURA:
     CURSOR 18,28,0
     LECTURA_CADENA FDat_rol
 
-    ;Datos configuracion
     CURSOR 10,61,0
     LECTURA_CADENA FDat_tempMax
     CURSOR 12,63,0
@@ -95,7 +86,6 @@ FDat_CAPTURA:
     LECTURA_CADENA FDat_goteras
 
 FDat_GUARDAR:
-    ; operadores.txt
     ESCRIBIR_ARCHIVO FDat_idOper,8,FDat_etNom
     MOV BX,FDat_idOper
     LEA DX,FDat_nombre
@@ -123,7 +113,6 @@ FDat_GUARDAR:
     ESCRIBIR_ARCHIVO FDat_idOper,2,FDat_saltoL
     ESCRIBIR_ARCHIVO FDat_idOper,22,FDat_sepa
 
-    ; configuracion.txt
     ESCRIBIR_ARCHIVO FDat_idConf,18,FDat_etTmp
     MOV BX,FDat_idConf
     LEA DX,FDat_tempMax
@@ -169,7 +158,6 @@ FDat_FIN:
     RET
 PROC_FORMDATOS ENDP
 
-; Cierra los handles que sigan abiertos
 PROC_FDat_CIERRA PROC
     CMP FDat_idOper,0
     JE FDat_C2
@@ -189,7 +177,6 @@ FDat_C3:
 PROC_FDat_CIERRA ENDP
 
 
-; Limpiar los buffers
 PROC_FDat_LIMPIAR PROC
     MOV CX,26
     MOV SI,2

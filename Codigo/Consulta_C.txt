@@ -1,4 +1,4 @@
-; Codigo pantalla Consulta Termica (LCD en puertos 2040h-206Fh)
+; Codigo pantalla Consulta Termica 
 
 PROC_CONSULTA PROC
     CALL CON_CARGAR
@@ -34,26 +34,24 @@ PROC_CONSULTA PROC
     IMPCAP_CONCOLOR Util_marco,80,23,0,0,0,0AH
     IMPCAP_CONCOLOR msjPie,80,24,0,0,0,2FH
 Con_LEER:
-    CALL CON_LEE_TERMOMETRO     ; Con_temp <- puerto 2086h
-    CALL CON_ACTUALIZA          ; textos, estado, ventilacion, LCD y diferencia
-    CALL CON_MUESTRA_RAW        ; diagnostico: byte crudo del puerto
+    CALL CON_LEE_TERMOMETRO
+    CALL CON_ACTUALIZA
+    CALL CON_MUESTRA_RAW
 Con_ESPERA:
     CALL TECLA
     CMP AL,27
     JE Con_SALIR
-    JMP Con_LEER                ; cualquier otra tecla vuelve a leer
+    JMP Con_LEER
 Con_SALIR:
     RET
 PROC_CONSULTA ENDP
 
-; Lee umbral y modo de ventilacion de configuracion.txt, zona de la sesion y fecha del sistema
 CON_CARGAR PROC
     CLD
     MOV Con_umbral,28
     MOV Con_ventMod,'1'
-    ; fecha dd/mm/aaaa
     MOV AH,2AH
-    INT 21H                     ; CX=año DH=mes DL=dia
+    INT 21H
     LEA DI,Con_tFecha
     MOV AL,DL
     CALL UTIL_NUM2
@@ -65,13 +63,12 @@ CON_CARGAR PROC
     INC DI
     MOV AX,CX
     MOV BL,100
-    DIV BL                      ; AL=20  AH=26
+    DIV BL
     PUSH AX
     CALL UTIL_NUM2
     POP AX
     MOV AL,AH
     CALL UTIL_NUM2
-    ; zona (del operador que inicio sesion)
     LEA DI,Con_tZona
     LEA SI,Con_zLud
     CMP Ses_zona,'2'
@@ -80,7 +77,6 @@ CON_CARGAR PROC
 CON_CZ:
     MOV CX,8
     REP MOVSB
-    ; configuracion
     LEA DX,FDat_rutaConf
     CALL UTIL_CARGAR
     JC CON_CFIN
@@ -104,10 +100,8 @@ CON_CFIN:
     RET
 CON_CARGAR ENDP
 
-; Arma los textos, decide estado, actualiza pantalla y LCD
 CON_ACTUALIZA PROC
     CLD
-    ; temperatura: "29 C / 84 F"
     LEA DI,Con_tTemp
     MOV CX,14
     CALL UTIL_ESPACIOS
@@ -119,7 +113,7 @@ CON_ACTUALIZA PROC
     MOV BYTE PTR [DI+3],'/'
     MOV BYTE PTR [DI+4],' '
     ADD DI,5
-    CALL CON_A_FAHRENHEIT       ; Con_fahr = Con_temp * 9 / 5 + 32
+    CALL CON_A_FAHRENHEIT
     MOV AL,Con_fahr
     CALL UTIL_NUM
     MOV BYTE PTR [DI],' '
@@ -148,7 +142,6 @@ CON_ACTUALIZA PROC
     IMPCAP_CONCOLOR Con_tZona,8,15,19,0,0,0EH
     IMPCAP_CONCOLOR Con_tFecha,10,17,19,0,0,0EH
     IMPCAP_CONCOLOR Con_tReg,17,15,57,0,0,0EH
-    ; regla de decision: temperatura >= umbral -> alerta
     MOV Con_alerta,0
     MOV AL,Con_temp
     CMP AL,Con_umbral
@@ -159,7 +152,7 @@ CON_AL1:
     MOV Con_vent,AL
     CMP Con_ventMod,'2'
     JNE CON_AL2
-    MOV Con_vent,1              ; ventilacion forzada en modo On
+    MOV Con_vent,1
 CON_AL2:
     CALL CON_ENVIA_LCD
     CMP Con_alerta,1
@@ -189,11 +182,47 @@ CON_SINAV:
 CON_CONAV:
     IMPCAP_CONCOLOR Con_avA,52,20,3,0,0,0CH
 CON_FIN:
-    CALL CON_MARGEN             ; fila 19: diferencia con el umbral
+    CALL CON_MARGEN
+    CALL CON_LED
+    CALL CON_ROBOT
     RET
 CON_ACTUALIZA ENDP
 
-; Envia 2 lineas de 16 caracteres al LCD de emu8086 (puertos 2040h-205Fh)
+CON_LED PROC
+    xor ax,ax
+    mov al,Con_temp
+    mov dx,199
+    out dx,ax
+    RET
+CON_LED ENDP
+
+CON_ROBOT PROC
+    CMP Con_alerta,1
+    JNE CR_APAGA
+    mov al,1
+    CALL CON_ORDEN
+    mov al,5
+    CALL CON_ORDEN
+    RET
+CR_APAGA:
+    mov al,6
+    CALL CON_ORDEN
+    RET
+CON_ROBOT ENDP
+
+CON_ORDEN PROC
+    mov bl,al
+    mov dx,11
+CR_OCUPADO:
+    in al,dx
+    and al,00000010B
+    jnz CR_OCUPADO
+    mov al,bl
+    mov dx,9
+    out dx,al
+    RET
+CON_ORDEN ENDP
+
 CON_ENVIA_LCD PROC
     CLD
     LEA DI,Con_lcd
@@ -205,7 +234,7 @@ CON_LA:
     LEA SI,Con_lcdA
 CON_LB:
     MOV CX,16
-    REP MOVSB                   ; linea 1: estado
+    REP MOVSB
     MOV CX,16
     CALL UTIL_ESPACIOS          
     MOV BYTE PTR [DI],'T'
@@ -232,41 +261,34 @@ CON_LS:
     RET
 CON_ENVIA_LCD ENDP
 
-; Lee el Thermometer del Emulation Kit (puerto 2086h)
-; Se asume que el puerto entrega los grados directos como byte con signo
-; (-40 a +120). Si Con_raw no coincide con el dispositivo, se ajusta aqui.
 CON_LEE_TERMOMETRO PROC
     MOV DX,2086H
     IN AL,DX
-    MOV Con_raw,AL              ; byte crudo, sirve para calibrar
+    MOV Con_raw,AL
     CMP AL,128
-    JC CT_POS                   ; menor a 128 = temperatura positiva
-    MOV AL,0                    ; bajo cero: se muestra como 0
+    JC CT_POS
+    MOV AL,0
     JMP CT_GUARDA
 CT_POS:
     CMP AL,121
-    JC CT_GUARDA                ; 120 o menos pasa tal cual
-    MOV AL,120                  ; tope de la escala
+    JC CT_GUARDA
+    MOV AL,120
 CT_GUARDA:
     MOV Con_temp,AL
     RET
 CON_LEE_TERMOMETRO ENDP
 
-; Convierte Celsius a Fahrenheit:  F = C * 9 / 5 + 32
-; Usa MUL, DIV y ADD. Maximo: 120 C -> 1080 -> 216 -> 248 F (cabe en un byte)
 CON_A_FAHRENHEIT PROC
     MOV AL,Con_temp
     MOV BL,9
-    MUL BL                      ; AX = C * 9  (MUL de 8 bits deja AL*BL en AX)
+    MUL BL
     MOV BL,5
-    DIV BL                      ; AL = cociente, AH = residuo
+    DIV BL
     ADD AL,32
     MOV Con_fahr,AL
     RET
 CON_A_FAHRENHEIT ENDP
 
-; Diferencia entre la temperatura y el umbral. Usa SUB.
-; Pone el signo + si esta por encima del umbral, - si esta por debajo.
 CON_MARGEN PROC
     LEA DI,Con_tMar
     MOV CX,6
@@ -274,12 +296,12 @@ CON_MARGEN PROC
     MOV AL,Con_temp
     CMP AL,Con_umbral
     JC CM_BAJO
-    SUB AL,Con_umbral           ; temperatura >= umbral
+    SUB AL,Con_umbral
     MOV BYTE PTR [DI],'+'
     JMP CM_PON
 CM_BAJO:
     MOV AL,Con_umbral
-    SUB AL,Con_temp             ; umbral > temperatura
+    SUB AL,Con_temp
     MOV BYTE PTR [DI],'-'
 CM_PON:
     INC DI
@@ -291,8 +313,6 @@ CM_PON:
     RET
 CON_MARGEN ENDP
 
-; Muestra el byte crudo del puerto 2086h (diagnostico, gris oscuro).
-; Una vez confirmada la conversion se puede quitar.
 CON_MUESTRA_RAW PROC
     LEA DI,Con_tRaw
     MOV CX,4

@@ -39,6 +39,16 @@
     Sev_tLec       DB 2 dup(' ')      ; digitos de lecturas por semana
     Sev_msjTec     DB 'Pulsa una tecla para volver al menu' ;35
 
+    ; --- Archivo de lecturas (carpeta de Cortes Hidalgo Carlos David) ---
+    Sev_ruta       DB 'C:\ProyectoSCTA\Cortes Hidalgo Carlos David\lecturas.txt',0
+    Sev_reg        DB 'Hora: '            ;6
+    Sev_rH         DB '00:'               ;3
+    Sev_rM         DB '00  Temp: '        ;10
+    Sev_rT         DB '00 C  Humedad: '   ;15
+    Sev_rHu        DB '00 %',13,10        ;6   total = 40
+    Sev_msjGOk     DB 'Lectura guardada en lecturas.txt   ' ;35
+    Sev_msjGEr     DB 'ERROR al abrir lecturas.txt        ' ;35
+
     ; --- Datos del device (a-b-c-d-e-f-g, bit0 = a ... bit6 = g) ---
     Sev_tabla      DB 00111111B       ; 0
                    DB 00000110B       ; 1
@@ -56,3 +66,8 @@
     Sev_hum        DB 50
     Sev_tMan       DB 20              ; temperatura de la manana
     Sev_tTar       DB 30              ; temperatura de la tarde
+
+    ; --- Stepper_motor: 3 vueltas de los 4 pasos (medio paso, sentido horario) ---
+    Sev_pasos      DB 00000110B,00000100B,00000011B,00000010B
+                   DB 00000110B,00000100B,00000011B,00000010B
+                   DB 00000110B,00000100B,00000011B,00000010B

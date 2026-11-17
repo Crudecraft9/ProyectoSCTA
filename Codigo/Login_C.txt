@@ -1,4 +1,4 @@
-; Codigo pantalla Login (usuario = Nombre, clave = No. Control, tomados de operadores.txt)
+; Codigo pantalla Login 
 
 PROC_LOGIN PROC
 Log_PANTALLA:
@@ -39,7 +39,6 @@ Log_PANTALLA:
     IMPCAP_CONCOLOR Log_boton,36,20,43,0,0,0BH
     IMPCAP_CONCOLOR Log_msjF2,36,22,43,0,0,07H
     IMPCAP_CONCOLOR Log_msjEsc,36,23,43,0,0,07H
-    ; --- captura de usuario ---
     MOV Util_mascara,0
     LEA DI,Log_bufUsr
     MOV CL,28
@@ -54,7 +53,6 @@ Log_PANTALLA:
     MOV AL,Util_len
     MOV Log_lenUsr,AL
 
-    ; --- captura de clave ---
     MOV Util_mascara,1
     LEA DI,Log_bufPas
     MOV CL,28
@@ -71,10 +69,10 @@ Log_PANTALLA:
     JMP Log_VALIDA
 
 Log_ESC:
-    MOV AL,0                    ; AL=0 -> salir del sistema
+    MOV AL,0
     RET
 Log_F2:
-    CALL PROC_AGREGARCUENTA     ; crear nuevo usuario
+    CALL PROC_AGREGARCUENTA
     JMP Log_PANTALLA
 
 Log_VALIDA:
@@ -82,7 +80,7 @@ Log_VALIDA:
     JNC Log_OK
     JMP Log_FALLO
 Log_OK:
-    MOV AL,1                    ; AL=1 -> acceso concedido
+    MOV AL,1
     RET
 
 Log_FALLO:
@@ -99,8 +97,6 @@ Log_EF:
     JMP Log_PANTALLA
 PROC_LOGIN ENDP
 
-; Busca en operadores.txt un registro con Nombre = usuario y No. Control = clave
-; SALIDA: CF=0 valido (y guarda Ses_zona / Ses_rol) ; CF=1 invalido, Log_err=1 sin usuarios
 LOG_VALIDAR PROC
     LEA DX,FDat_rutaOper
     CALL UTIL_CARGAR
@@ -135,7 +131,7 @@ LV_SIG:
     XOR CH,CH
     CALL UTIL_COMPARA
     JC LV_SIG
-    MOV BX,SI                   ; credenciales validas: leer zona y rol del registro
+    MOV BX,SI
     LEA DI,FDat_etZon
     MOV CX,6
     CALL UTIL_BUSCAR

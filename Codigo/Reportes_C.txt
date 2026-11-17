@@ -8,17 +8,14 @@ PROC_REPORTES PROC
     IMPCAP_CONCOLOR Rep_logo4,11,4,1,0,0,0AH
     IMPCAP_CONCOLOR Rep_logo5,11,5,1,0,0,0AH
 
-    ; 3. Imprimir titulo
     IMPCAP_CONCOLOR Rep_titulo1,64,1,13,0,0,0AH
     IMPCAP_CONCOLOR Rep_titulo2,64,2,13,0,0,0AH
     IMPCAP_CONCOLOR Rep_titulo3,64,3,13,0,0,0AH
     IMPCAP_CONCOLOR Rep_titulo4,64,4,13,0,0,0AH
     IMPCAP_CONCOLOR Rep_titulo5,64,5,13,0,0,0AH
 
-    ; 4. Instruccion central
     IMPCAP_CONCOLOR Rep_msjInst,50,7,15,0,0,0EH
 
-    ; 5. Vista Previa del Reporte
     IMPCAP_CONCOLOR Rep_msjRP1,42,9,1,0,0,0EH
     IMPCAP_CONCOLOR Rep_msjRP2,42,10,1,0,0,0AH
     IMPCAP_CONCOLOR Rep_msjRP3,42,11,1,0,0,0AH
@@ -33,7 +30,6 @@ PROC_REPORTES PROC
     IMPCAP_CONCOLOR Rep_msjRP12,42,20,1,0,0,0BH
     IMPCAP_CONCOLOR Rep_msjRP13,42,21,1,0,0,0AH
 
-    ; 6. Menu de Elecciones
     IMPCAP_CONCOLOR Rep_msjMN1,33,9,46,0,0,0EH
     IMPCAP_CONCOLOR Rep_msjMN2,33,10,46,0,0,0AH
     IMPCAP_CONCOLOR Rep_msjMN3,33,11,46,0,0,0AH
@@ -45,7 +41,6 @@ PROC_REPORTES PROC
     IMPCAP_CONCOLOR Rep_msjMN9,33,17,46,0,0,0BH
     IMPCAP_CONCOLOR Rep_msjMN10,33,18,46,0,0,0AH
 
-    ; 7. Pie de pagina
     IMPCAP_CONCOLOR Rep_msjPie,80,24,0,0,0,2FH
 
 Rep_LEER_TECLA:
@@ -64,7 +59,6 @@ Rep_LEER_TECLA:
     JMP Rep_LEER_TECLA
 
 Rep_imprimirReporte:
-    ;  1110 caracteres
     MOV CX,1110
     MOV SI,0
 
